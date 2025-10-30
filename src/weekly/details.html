@@ -1,53 +1,43 @@
-<!--
-  Requirement: Create the Dedicated Page for a Single Week
+<!--This page displays the full details for one week and allows for discussion.-->
 
-  Instructions:
-  This page displays the full details for one week and allows for discussion.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Title -->
      <title>Week Details</title>
-    <!-- CSS framework or stylesheet. -->
-     <link rel="stylesheet" href="">
+     <link rel="stylesheet" href="../common/styles.css">
 </head>
 <body>
-    <!-- Header with a main heading -->
      <header>
-        <h1>Week 1: Introduction to HTML</h1>
+        <h1 id="week-title">Week 1: Introduction to HTML</h1>
      </header>
-    <!-- Main -->
      <main>
         <!-- Section 1: Weekly Information -->
+         <section id="weekly-Information" class="section1">
          <article>
-            <!-- Display the start date -->
-             <p>Starts on: YYYY-MM-DD</p>
+             <p id="week-start-date">Starts on: YYYY-MM-DD</p>
              <h2>Description & Notes</h2>
             <!-- Week's detailed notes -->
-            <p>This week covers the basics of HTML, including the structure of a web page, common
+            <p id="week-description">This week covers the basics of HTML, including the structure of a web page, common
                tags,and best practices for writing semantic markup. Students will learn how to create
                headings,paragraphs, lists, and links, as well as how to organize content using sections
                and articles.
             </p>
-            
              <h2>Exercises & Resources</h2>
             <!-- Links for the week -->
-             <ul>
+             <ul id="week-links-list">
                 <li><a href="#">Exercise 1 - Basic Tags</a></li>
                 <li><a href="#">Exercise 2 - Semantic Elements</a></li>
                 <li><a href="#">Exercise 3 - HTML Structure Practice</a></li>
              </ul>
          </article>
-
+         </section>
         <!-- Section 2: Discussion Forum -->
          <section id="discussion-forum" class="section2">
              <h2>Discussion</h2>
             <!-- Subsection 2.1: Existing Comments -->
-             <div class="comments-container">
+             <div id="comment-list" class="comments-container">
                  <article>
                     <p>I have a question about the 'header' tag.</p>
                     <footer>Posted by: John Doe</footer>
@@ -58,30 +48,18 @@
                 </article>
                 </div>
             <!-- Subsection 2.2: Add a Comment Form -->
-            <!-- TODO: Create a 'form' for users to post new comments. Action can be '#'. -->
-             <form action="#">
-                <!-- TODO: Use a 'fieldset' to group the controls. -->
+             <form id="comment-form" action="#">
                  <fieldset>
-                    <!-- TODO: Add a 'legend', e.g., "Ask a Question". -->
                     <legend>Share Your Thoughts or Questions</legend>
-                    <!-- TODO: Add a 'label' and 'textarea' for the comment box.
-                         - label 'for': "new-comment"
-                         - textarea 'id': "new-comment", required -->
                          <label for="new-comment">Your comment:</label>
-                         <textarea name="" id="new-comment" required></textarea>
-                    
-                    <!-- TODO: Add a 'button' to submit the comment.
-                         - type="submit", Text: "Post Comment" -->
+                         <textarea name="" id="new-comment-text" required></textarea>
                          <button type="submit">Post Comment</button>
-                <!-- End of fieldset. -->
                  </fieldset>
-            <!-- End of form. -->
              </form>
-        <!-- End of discussion section. -->
          </section>
 
-    <!-- End of main. -->
      </main>
+     <script src="details.js" defer></script>
 </body>
 </html>
 
