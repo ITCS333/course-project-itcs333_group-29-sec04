@@ -3,7 +3,19 @@
 # ITCS### Course Page
 
 ## The names and student IDs of all team members.
-
+| Student ID | Name |
+| ---------- | ---- |
+| 202302157 | ZAHRAA SAYED MAHMOOD ADNAN JAAFAR |
+| 202302218 | HAWRA MOHAMED ISMAEEL RAMADHAN |
+| 202302376 | ZAHRA ABDULJALIL MOHAMED ALAIWI |
+| 202304382 | RAWAN ALI ABDULREDHA FARDAN |
+| 202306351 | MAHA AHMED ZAIN SALEH |
 ## A table indicating which student was responsible for which task.
-
+| Task | Assigned To |
+| ---- | ----------- |
+| 1 | ZAHRAA SAYED MAHMOOD ADNAN JAAFAR |
+| 2 | HAWRA MOHAMED ISMAEEL RAMADHAN |
+| 3 | ZAHRA ABDULJALIL MOHAMED ALAIWI |
+| 4 | RAWAN ALI ABDULREDHA FARDAN |
+| 5 | MAHA AHMED ZAIN SALEH |
 ## A link to your live, hosted application on Replit.
