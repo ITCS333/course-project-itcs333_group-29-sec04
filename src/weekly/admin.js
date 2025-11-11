@@ -116,7 +116,7 @@ function handleAddWeek(event) {
   };
   weeks.push(week);//Adding the object to weeks array
   renderTable();//Refresh list
-  document.getElementById('week-form').reset();//Reset form
+  weekForm.reset();//Reset form
 }
 
 /**
@@ -150,9 +150,16 @@ function handleTableClick(event) {
  */
 async function loadAndInitialize() {
   // ... your implementation here ...
-  const result= await fetch("api/weeks.json");
-  const data= await result.json();
-  weeks=[...data]; 
+  try{
+    const result= await fetch("api/weeks.json");
+    if(!result.ok){
+      throw new Error("Could not fetch resource");
+    }
+    const data= await result.json();
+    weeks=[...data]; 
+  }catch(error){
+    console.log("Error loading data:"+error);
+  }
   renderTable();
   weekForm.addEventListener('submit',handleAddWeek);
   weeksTable.addEventListener('click',handleTableClick);  

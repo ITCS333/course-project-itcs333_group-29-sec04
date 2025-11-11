@@ -60,10 +60,19 @@ function createWeekArticle(week) {
  */
 async function loadWeeks() {
   // ... your implementation here ...
-  const result= await fetch("api/weeks.json");
-  const weekData= await result.json();
-  listSection.innerHTML="";
-  weekData.forEach(week=>{listSection.appendChild(createWeekArticle(week))});
+  try{
+    const result= await fetch("api/weeks.json");
+    if(!result.ok){
+      throw new Error("Could not fetch resource");
+    }
+    const weekData= await result.json();
+    listSection.innerHTML="";
+    weekData.forEach(week=>{
+      listSection.appendChild(createWeekArticle(week))
+    });
+  }catch(error){
+    console.log("Error loading data:"+error);
+  }
 }
 
 // --- Initial Page Load ---
