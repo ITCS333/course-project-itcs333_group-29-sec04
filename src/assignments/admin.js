@@ -42,6 +42,7 @@ function createAssignmentRow(assignment) {
   tr.appendChild(dueDate);
 
   const actions = document.createElement('td');
+  actions.classList.add("action-td");
   const editBtn = document.createElement('button');
   editBtn.className = 'edit-btn';
   editBtn.dataset.id = assignment.id;
