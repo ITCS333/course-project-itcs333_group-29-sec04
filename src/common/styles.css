@@ -1,0 +1,223 @@
+:root {
+  --navy: #243648;
+  --teal: #4c7685;
+  --sky-blue: #d7e6ef;
+  --beige: #f9f5f1;
+  --white: #ffffff;
+  --accent-blue: #43b2c4;
+  --accent-hover: #2c6d77;
+  --shadow: rgba(0,0,0,0.15);
+  --glass-bg: rgba(255,255,255,0.25);
+  --glass-shadow: rgba(0,0,0,0.12);
+  --transition-speed: 0.3s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Lora", Georgia, serif; 
+  transition: all var(--transition-speed) ease-in-out;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(140deg, var(--beige), var(--sky-blue));
+  color: var(--navy);
+  padding: 40px;
+  line-height: 1.6;
+  backdrop-filter: blur(4px);
+}
+
+h1 {
+  font-family: "Marcellus", serif;
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 28px;
+  color: var(--navy);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px var(--shadow);
+  transform: translateY(0);
+  animation: fadeInDown 0.8s ease forwards;
+}
+
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+main, .main {
+  max-width: 950px;
+  margin: auto;
+  display: block;
+}
+
+legend {
+  font-family: "Marcellus", serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--navy);
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--teal);
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background: var(--accent-blue);
+  border-radius: 2px;
+  margin-top: 6px;
+  transition: width 0.3s ease;
+}
+
+h2:hover::after {
+  width: 100px;
+}
+
+form fieldset {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  border: none;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px var(--glass-shadow);
+  margin-bottom: 35px;
+  transform: scale(0.98);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+form fieldset:hover {
+  transform: scale(1);
+  box-shadow: 0 14px 36px var(--glass-shadow);
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+input, textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(180%);
+  font-size: 16px;
+  font-family: "Lora", serif;
+  color: var(--navy);
+  transition: all 0.25s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(67,178,196,0.3);
+  outline: none;
+}
+
+button {
+  display: inline-block;
+  padding: 12px 20px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--accent-blue), var(--teal));
+  margin-right: 20px; 
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, var(--accent-hover), var(--navy));
+  transform: scale(1.08);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px var(--glass-shadow);
+  margin-top: 28px;
+}
+
+th, td {
+  padding: 16px;
+  text-align: left;
+  font-family: "Lora", serif;
+  color: var(--navy);
+}
+
+th {
+  background: rgba(76,118,133,0.8);
+  color: var(--white);
+  font-weight: 700;
+}
+
+tr:hover {
+  background: rgba(76,118,133,0.12);
+  transform: scale(1.01);
+  transition: all 0.25s ease;
+}
+
+article {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(180%);
+  padding: 24px;
+  border-radius: 18px;
+  margin-bottom: 26px;
+  border-left: 6px solid var(--accent-blue);
+  box-shadow: 0 10px 28px var(--glass-shadow);
+  transition: all 0.3s ease;
+  line-height: 1.6;
+}
+
+article:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.2);
+}
+
+a {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--navy);
+  text-decoration: none;
+  transition: 0.25s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: var(--accent-blue);
+}
+
+#discussion-forum article {
+  background: rgba(215, 230, 239, 0.22);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 6px 18px var(--glass-shadow);
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#discussion-forum article:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.2);
+}
