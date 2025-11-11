@@ -11,25 +11,31 @@
     <!-- TODO: Add the 'meta' tag for character encoding (UTF-8). -->
     <meta charset="UTF-8" />
     <!-- TODO: Add the responsive 'viewport' meta tag. -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
     <!-- TODO: Add a title, e.g., "Manage Assignments". -->
     <title>Assignments Dashboard</title>
     <!-- TODO: Link to your CSS framework or stylesheet. -->
-    <link rel="stylesheet" href="/src/common/styles.css" />
+    <link rel="stylesheet" href="/src/common/styles.css" >
+    <!-- linking to javascript -->
+     <script src="admin.js" defer></script>
+     <!-- google font -->
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Aboreto&family=Marcellus&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <!-- TODO: Create a 'header' with a main heading ('h1') "Manage Assignments". -->
     <h1>Assignments Dashboard</h1>
     <!-- TODO: Create the 'main' content area. -->
-    <div class="main">
-        <!-- Section 1: Add/Edit Assignment Form -->
+    <main>       
+      <!-- Section 1: Add/Edit Assignment Form -->
         <!-- TODO: Create a 'section' for the form. -->
-         <div class="section">
+          <section>            
             <!-- TODO: Add a sub-heading ('h2') "Add a New Assignment". -->
             <h2>Assignment Creation Portal</h2>
             <!-- TODO: Create a 'form' with an id "assignment-form". Action can be '#'. -->
-             <form id="assignment-form" action="/" method="post">
+             <form id="assignment-form" action="#">
                 <!-- TODO: Use a 'fieldset' to group the form controls. -->
                  <fieldset>
                     <!-- TODO: Add a 'legend', e.g., "Assignment Details". -->
@@ -62,7 +68,7 @@
             <!-- End of form. -->
              </form>
         <!-- End of form section. -->
-        </div>
+          </section>
 
         <!-- Section 2: Existing Assignments List -->
         <!-- TODO: Create a 'section' to display the list of current assignments. -->
@@ -81,7 +87,7 @@
                      </tr>
                 </thead>
                 <!-- TODO: Create a 'tbody' for the data. -->
-                 <tbody>
+                 <tbody id="assignments-tbody">
                     <!-- TODO: Add 1-2 rows of dummy data to see the structure. -->
                     <!-- Example Row 1: -->
                     <!-- TODO: Create a 'tr' for the first assignment. -->
@@ -120,6 +126,6 @@
         <!-- End of list section. -->
         </section>
     <!-- End of main. -->
-     </div>
+    </main>
 </body>
 </html>

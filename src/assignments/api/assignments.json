@@ -2,7 +2,7 @@
   {
     "id": "asg_1",
     "title": "Assignment 1: HTML Basics",
-    "description": "Create a semantic HTML structure for a personal portfolio. Focus on using tags like <header>, <nav>, <main>, <article>, and <footer>.",
+    "description": "Create a semantic HTML structure for a personal portfolio. Focus on using tags like header, nav, main, article, and footer.",
     "dueDate": "2025-11-10",
     "files": ["portfolio-requirements.pdf", "examples.zip"]
   },

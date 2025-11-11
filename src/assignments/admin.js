@@ -17,9 +17,9 @@ let assignments = [];
 
 // --- Element Selections ---
 // TODO: Select the assignment form ('#assignment-form').
-
+const form = document.querySelector('#assignment-form');
 // TODO: Select the assignments table body ('#assignments-tbody').
-
+const table = document.querySelector('#assignments-tbody');
 // --- Functions ---
 
 /**
@@ -33,7 +33,29 @@ let assignments = [];
  * - A "Delete" button with class "delete-btn" and `data-id="${id}"`.
  */
 function createAssignmentRow(assignment) {
-  // ... your implementation here ...
+  const tr = document.createElement('tr');
+  const Title = document.createElement('td');
+  Title.textContent = assignment.title;
+  tr.appendChild(Title);
+  const dueDate = document.createElement('td');
+  dueDate.textContent = assignment.dueDate;
+  tr.appendChild(dueDate);
+
+  const actions = document.createElement('td');
+  const editBtn = document.createElement('button');
+  editBtn.className = 'edit-btn';
+  editBtn.dataset.id = assignment.id;
+  editBtn.textContent = 'Edit';
+  actions.appendChild(editBtn);
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.dataset.id = assignment.id;
+  deleteBtn.textContent = 'Delete';
+  actions.appendChild(deleteBtn);
+
+  tr.appendChild(actions);
+
+  return tr;
 }
 
 /**
@@ -45,7 +67,13 @@ function createAssignmentRow(assignment) {
  * append the resulting <tr> to `assignmentsTableBody`.
  */
 function renderTable() {
-  // ... your implementation here ...
+table.innerHTML='';
+
+assignments.forEach((assignment) => {
+ const tr = createAssignmentRow(assignment);
+ table.appendChild(tr);
+});
+
 }
 
 /**
@@ -60,7 +88,27 @@ function renderTable() {
  * 6. Reset the form.
  */
 function handleAddAssignment(event) {
-  // ... your implementation here ...
+ event.preventDefault();
+
+ const title = document.querySelector('#assignment-title').value;
+ const description = document.querySelector('#assignment-description').value;
+ const dueDate = document.querySelector('#assignment-due-date').value;
+ const files = document.querySelector('#assignment-files').value;
+
+ const newAssignment = {
+  id: `asg_${Date.now()}`,
+  title,
+  description,
+  dueDate,
+  files,
+ };
+
+ assignments.push(newAssignment);
+
+ renderTable();
+
+ event.target.reset();
+
 }
 
 /**
@@ -74,7 +122,13 @@ function handleAddAssignment(event) {
  * 4. Call `renderTable()` to refresh the list.
  */
 function handleTableClick(event) {
-  // ... your implementation here ...
+const target = event.target;
+
+if(target.classList.contains('delete-btn')){
+  const assignmentId = target.dataset.id;
+  assignments = assignments.filter(assignment => assignment.id !== assignmentId);
+  return renderTable();
+ }
 }
 
 /**
@@ -88,7 +142,17 @@ function handleTableClick(event) {
  * 5. Add the 'click' event listener to `assignmentsTableBody` (calls `handleTableClick`).
  */
 async function loadAndInitialize() {
-  // ... your implementation here ...
+try{
+ const response = await fetch('/src/assignments/api/assignments.json');
+ assignments = await response.json();
+ renderTable();
+
+ form.addEventListener('submit', handleAddAssignment);
+ table.addEventListener('click', handleTableClick);
+
+}catch(error){
+  console.error('Failed to load assignments', error);
+}
 }
 
 // --- Initial Page Load ---
