@@ -151,6 +151,9 @@ async function loadAndInitialize() {
   // ... your implementation here ...
   try{
     const result= await fetch("api/weeks.json");
+    if (!result.ok) {
+      throw new Error("Could not fetch weeks");
+    }
     weeks= await result.json(); 
     
     renderTable();
