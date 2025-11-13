@@ -14,7 +14,6 @@
 // --- Global Data Store ---
 // This will hold the weekly data loaded from the JSON file.
 let weeks = [];
-let weekIDcount=0;
 // --- Element Selections ---
 // TODO: Select the week form ('#week-form').
 const weekForm=document.getElementById('week-form');
@@ -108,7 +107,7 @@ function handleAddWeek(event) {
 
   //Week Object
    const week={
-    id:"week_"+(++weekIDcount),
+    id:"week_"+Date.now(),
     title:title,
     startDate:startDate,
     description:description,
@@ -132,8 +131,8 @@ function handleAddWeek(event) {
 function handleTableClick(event) {
   // ... your implementation here ...
   if(event.target.classList.contains("delete-btn")){
-    const wId=event.target.dataset.id;
-    weeks=weeks.filter((week)=> week.id!==wId);
+    const weekId=event.target.dataset.id;
+    weeks=weeks.filter((week)=> week.id!==weekId);
     renderTable();
   }
 }
@@ -152,17 +151,15 @@ async function loadAndInitialize() {
   // ... your implementation here ...
   try{
     const result= await fetch("api/weeks.json");
-    if(!result.ok){
-      throw new Error("Could not fetch resource");
-    }
-    const data= await result.json();
-    weeks=[...data]; 
+    weeks= await result.json(); 
+    
+    renderTable();
+    weekForm.addEventListener('submit',handleAddWeek);
+    weeksTable.addEventListener('click',handleTableClick); 
   }catch(error){
-    console.log("Error loading data:"+error);
+    console.log("Error loading data:",error);
   }
-  renderTable();
-  weekForm.addEventListener('submit',handleAddWeek);
-  weeksTable.addEventListener('click',handleTableClick);  
+   
 }
 
 // --- Initial Page Load ---
