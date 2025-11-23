@@ -14,6 +14,9 @@
 // --- Element Selections ---
 // TODO: Select the section for the week list ('#week-list-section').
 const listSection=document.getElementById("week-list-section");
+
+//Added php URL
+const WEEKS_URL = `./api/index.php?resource=weeks`;
 // --- Functions ---
 
 /**
@@ -33,7 +36,7 @@ function createWeekArticle(week) {
   const link=document.createElement('a');
   //Value assignment
   weekTitle.textContent=week.title;
-  startDate.textContent="Starts on: "+week.startDate;
+  startDate.textContent="Starts on: "+week.start_date;//fixed to match php
   description.textContent=week.description;
   link.textContent="View Details & Discussion";
   link.href="details.html?id="+week.id;
@@ -61,11 +64,16 @@ function createWeekArticle(week) {
 async function loadWeeks() {
   // ... your implementation here ...
   try{
-    const result= await fetch("api/weeks.json");
-    if (!result.ok) {
+    //fixed to fetch from php
+    const response= await fetch(WEEKS_URL);
+    if (!response.ok) {
       throw new Error("Could not fetch weeks");
     }
-    const weekData= await result.json();
+    const result=await response.json();
+    if (!result.success) {
+      throw new Error(result.error || "API returned an error");
+    }
+    const weekData= result.data;
     
     listSection.innerHTML="";
     weekData.forEach(week=>{

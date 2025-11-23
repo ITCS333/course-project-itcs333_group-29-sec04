@@ -10,6 +10,8 @@
   
   3. Implement the TODOs below.
 */
+//Added php URL
+const WEEKS_URL = `./api/index.php?resource=weeks`;
 
 // --- Global Data Store ---
 // This will hold the weekly data loaded from the JSON file.
@@ -19,6 +21,21 @@ let weeks = [];
 const weekForm=document.getElementById('week-form');
 // TODO: Select the weeks table body ('#weeks-tbody').
 const weeksTable=document.getElementById('weeks-tbody');
+
+//Added
+//Required for update part:
+const submit_btn=document.getElementById("add-week");
+const cancel_btn=document.getElementById("cancel-edit-button");
+const formTitle=document.getElementById("form-title");
+
+//Required for search& filter
+const searchInput = document.getElementById("Search-input");
+const filterSelect = document.getElementById("filter-select");
+const orderBtn = document.getElementById("order-btn");
+let sortAsc = true;
+let timer;
+
+
 // --- Functions ---
 
 /**
@@ -96,6 +113,7 @@ function renderTable() {
  * 7. Reset the form.
  */
 
+//Added Update feature within handelAddWeek
 function handleAddWeek(event) {
   // ... your implementation here ...
   event.preventDefault();
@@ -103,19 +121,80 @@ function handleAddWeek(event) {
   const title=document.getElementById('week-title').value;
   const startDate=document.getElementById('week-start-date').value;
   const description=document.getElementById('week-description').value;
-  const weekLinks=document.getElementById('week-links').value.split("\n");
+  let weekLinks=document.getElementById('week-links').value.split("\n");
 
-  //Week Object
-   const week={
-    id:"week_"+Date.now(),
-    title:title,
-    startDate:startDate,
-    description:description,
-    links:weekLinks
-  };
-  weeks.push(week);//Adding the object to weeks array
-  renderTable();//Refresh list
-  weekForm.reset();//Reset form
+  //Removing empty lines from links
+   weekLinks = weekLinks.filter(link => link.trim() !== "");
+   //Add Mode
+   if(!weekForm.dataset.editId){
+    let week={
+      id:"",//fixed to match php
+      title:title,
+      start_date:startDate,//fixed to match php
+      description:description,
+      links:weekLinks
+    };
+    //Fetch part
+      fetch(WEEKS_URL,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(week)
+        })
+      .then(response=>response.json())
+      .then(result=>{
+        if(result.success){
+          week.id=result.data;
+          //Push to weeks array
+          weeks.push(week);
+          renderTable();//Refresh list
+          weekForm.reset();//Reset form
+        }else{
+          throw new Error("Could not fetch weeks");
+        }
+      }).catch(error=> console.log("Error: ",error));
+  }else{
+    //Update Mode
+    const id=weekForm.dataset.editId;
+    const week=weeks.find(week=>week.id==id);
+
+     const updated_week={
+      id:id,
+      title:title,
+      start_date:startDate,
+      description:description,
+      links:weekLinks
+    };
+    //Fetch Part
+    fetch(WEEKS_URL+`&id=${id}`,
+      {
+        method:"PUT", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated_week)
+      })
+      .then(response=>response.json())
+      .then(result=>{
+        if(!result.success){
+          throw new Error(result.error);
+        }
+        //Updating week within week array
+        Object.assign(week, updated_week);
+
+        renderTable();
+        restEdit();
+
+     }).catch(err => console.log(err));
+  }
+}
+
+//handeling cancel edit & form reset
+cancel_btn.addEventListener("click", restEdit);
+function restEdit(){
+  weekForm.reset();
+  delete weekForm.dataset.editId;  
+  submit_btn.textContent = "Add Week"; 
+  cancel_btn.style.display = "none";
+  formTitle.textContent="Add a New Week";
 }
 
 /**
@@ -128,14 +207,84 @@ function handleAddWeek(event) {
  * with the matching ID (in-memory only).
  * 4. Call `renderTable()` to refresh the list.
  */
+
+
 function handleTableClick(event) {
   // ... your implementation here ...
   if(event.target.classList.contains("delete-btn")){
-    const weekId=event.target.dataset.id;
-    weeks=weeks.filter((week)=> week.id!==weekId);
-    renderTable();
+    //Delete week
+    const id=event.target.dataset.id;
+    //Fetch part
+    fetch(`${WEEKS_URL}&id=${id}`, {method:"DELETE"})
+    .then(response=>response.json())
+    .then(result=>{
+      if(result.success){
+        //Remove week from weeks array
+        weeks=weeks.filter((week)=> week.id!=id);
+        renderTable();
+      }else{
+        throw new Error(result.error || "Could not delete week");
+      }
+    }).catch(error=> console.log("Error: ", error))
+    
+  }else if(event.target.classList.contains("edit-btn")){
+    //Edit Week:
+    //Get the week id and week info 
+    const id=event.target.dataset.id;
+    const week=weeks.find(week=>week.id==id);
+    weekForm.dataset.editId = id;
+
+    //Show week info in the form
+    const title=document.getElementById('week-title');
+    const startDate=document.getElementById('week-start-date');
+    const description=document.getElementById('week-description');
+    const weekLinks=document.getElementById('week-links');
+    title.value=week.title;
+    startDate.value=week.start_date;
+    description.value=week.description;
+    weekLinks.value=week.links.join("\n");
+
+    //Scroll to the form
+    weekForm.scrollIntoView({ behavior: "smooth" });
+    
+    submit_btn.textContent = "Update Week";
+    cancel_btn.style.display="inline-block";
+    formTitle.textContent="Update week"; 
   }
 }
+
+
+// ------ Search & Filter ------
+
+//Added a function for search & filter
+function loadFilteredWeeks(){
+  const search = searchInput.value.trim();
+  const sort = filterSelect.value;
+  const order = sortAsc ? "asc" : "desc";
+
+  const url = `${WEEKS_URL}&search=${encodeURIComponent(search)}&sort=${sort}&order=${order}`;
+
+  fetch(url).then(response=>response.json()).then(result=>{
+     weeks = result.data;
+     renderTable();
+  }).catch(error => console.error("Error fetching filtered weeks:", error));
+}
+
+//Event listeners for search & filter
+searchInput.addEventListener("input", (e)=>{
+  clearTimeout(timer);
+  timer = setTimeout(() => loadFilteredWeeks(), 300);
+});
+filterSelect.addEventListener("change", loadFilteredWeeks);
+orderBtn.addEventListener("click", () => {
+  sortAsc = !sortAsc;
+  orderBtn.textContent = sortAsc ? "Asc" : "Desc";
+  loadFilteredWeeks();
+});
+
+
+
+
 
 /**
  * TODO: Implement the loadAndInitialize function.
@@ -150,11 +299,16 @@ function handleTableClick(event) {
 async function loadAndInitialize() {
   // ... your implementation here ...
   try{
-    const result= await fetch("api/weeks.json");
-    if (!result.ok) {
+    //fixed to fetch from php
+    const response= await fetch(WEEKS_URL);
+    if (!response.ok) {
       throw new Error("Could not fetch weeks");
     }
-    weeks= await result.json(); 
+    const result=await response.json();
+    if (!result.success) {
+      throw new Error(result.error || "API returned an error");
+    }
+    weeks= result.data;
     
     renderTable();
     weekForm.addEventListener('submit',handleAddWeek);
@@ -162,7 +316,6 @@ async function loadAndInitialize() {
   }catch(error){
     console.log("Error loading data:",error);
   }
-   
 }
 
 // --- Initial Page Load ---

@@ -21,6 +21,9 @@
 // These will hold the data related to *this* specific week.
 let currentWeekId = null;
 let currentComments = [];
+//Added php URL
+const WEEKS_URL="./api/index.php?resource=weeks&id=";
+const COMMENTS_URL="./api/index.php?resource=comments";
 
 // --- Element Selections ---
 // TODO: Select all the elements you added IDs for in step 2.
@@ -59,7 +62,7 @@ function getWeekIdFromURL() {
 function renderWeekDetails(week) {
   // ... your implementation here ...
   weekTitle.textContent=week.title;
-  weekStartDate.textContent="Starts on: "+week.startDate;
+  weekStartDate.textContent="Starts on: "+week.start_date;//fixed to match php
   weekDescription.textContent=week.description;
   weekLinksList.innerHTML="";
   week.links.forEach(link=>{
@@ -90,9 +93,18 @@ function createCommentArticle(comment) {
   p.textContent=comment.text;
   footer.textContent="Posted by: "+comment.author;
 
+  //Added
+  //delete button
+  const delete_btn = document.createElement('button');
+  delete_btn.textContent = "×";
+  delete_btn.dataset.id = comment.id;
+  delete_btn.classList.add("comment-delete-btn");
+  article.classList.add("comment-item");
+ 
   //Structure
   article.appendChild(p);
   article.appendChild(footer);
+  article.appendChild(delete_btn);
 
   return article;
 }
@@ -132,13 +144,47 @@ function handleAddComment(event) {
   const text=comment.value.trim();
   if(text==="")return;
   const newComment={
+    // Added id and week_id to match php requiremet 
+    id:"",
+    week_id:currentWeekId,
     author: 'Student', 
     text: text
   }
-  currentComments.push(newComment);
-  renderComments();
-  comment.value="";
+  //Fecth part
+  fetch(COMMENTS_URL+"&week_id="+currentWeekId,{
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newComment)
+  })
+  .then(response=>response.json())
+  .then(result=>{
+    if(result.success){
+      newComment.id=result.data;
+      //moved within fetch.then
+      currentComments.push(newComment);
+      renderComments();
+      comment.value="";
+    }else{
+      throw new Error("Could not fetch Comment")
+    }
+  }).catch(error=> console.log("Error:",error));
 }
+
+//handle Delete comment
+function handleDeleteComment(event){
+  if(event.target.classList.contains("comment-delete-btn")){
+    const id=event.target.dataset.id;
+    fetch(COMMENTS_URL+"&id="+id,{method:"DELETE"})
+    .then(response=>response.json())
+    .then(result=>{
+      if(result.success){
+        currentComments=currentComments.filter((comment)=> comment.id!=id);
+        renderComments();
+      }else{throw new Error(result.error || "Could not delete comment");}
+    }).catch(error=> console.log("Error: ", error));
+  }
+}
+
 
 /**
  * TODO: Implement an `initializePage` function.
@@ -165,19 +211,23 @@ async function initializePage() {
     return;
   }
   const [weeksData,commentsData]= await Promise.all([
-      fetch("api/weeks.json").then(result=> result.json()),
-      fetch("api/comments.json").then(result=>result.json())
+    //fixed to fetch from php
+      fetch(WEEKS_URL+currentWeekId).then(result=> result.json()),
+      fetch(COMMENTS_URL+"&week_id="+currentWeekId).then(result=>result.json())
     ]);
-
-  const correctWeek=weeksData.find(week=> week.id===currentWeekId);
+  //Use this 
+  const correctWeek=weeksData.data;
+  //Instead of  
+  // const correctWeek=weeksData.find(week=> week.id===currentWeekId);
   if(!correctWeek){
     weekTitle.textContent="Week not found.";
     return;
   }
-  currentComments=commentsData[currentWeekId] || [];
+  currentComments=commentsData.data || []; //changed to match php resulting data
   renderWeekDetails(correctWeek);
   renderComments();
-  form.addEventListener('submit',handleAddComment);
+  form.addEventListener('submit',handleDeleteComment);
+  commentsList.addEventListener("click",handleClickComment);
 }
 
 // --- Initial Page Load ---
