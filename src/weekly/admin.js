@@ -149,6 +149,7 @@ function handleAddWeek(event) {
           weeks.push(week);
           renderTable();//Refresh list
           weekForm.reset();//Reset form
+          weeksTable.scrollIntoView({ behavior: "smooth" });
         }else{
           throw new Error("Could not fetch weeks");
         }
@@ -182,6 +183,7 @@ function handleAddWeek(event) {
 
         renderTable();
         restEdit();
+        weeksTable.scrollIntoView({ behavior: "smooth" });
 
      }).catch(err => console.log(err));
   }
