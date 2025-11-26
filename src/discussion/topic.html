@@ -1,50 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Character Encoding -->
     <meta charset="UTF-8">
+    
+    <!-- Responsive Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Page Title -->
     <title>Topic Details</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+
+    <!-- CSS Framework or Shared Stylesheet -->
+    <link rel="stylesheet" href="../common/styles.css">
 </head>
 <body>
 
 <header>
-    <h1>Question about CSS Flexbox</h1>
+    <!-- Topic Subject will be dynamically filled by JS -->
+    <h1 id="topic-subject">Topic Title</h1>
 </header>
 
 <main>
 
     <!-- Section 1: Original Post -->
     <article id="original-post">
-        <p>This is a dummy message for the original post of the topic.</p>
-        <footer>Posted by: Student A on 2025-11-10</footer>
+        <p id="op-message">Original message content will appear here.</p>
+        <footer id="op-footer">Posted by: Student on YYYY-MM-DD</footer>
         <div>
-            <a href="#" class="button secondary">Edit</a>
-            <a href="#" class="button contrast">Delete</a>
+            <button class="secondary">Edit</button>
+            <button class="contrast">Delete</button>
         </div>
     </article>
 
     <!-- Section 2: Replies -->
     <section id="replies-section">
         <h2>Replies</h2>
-        <div>
-            <article>
-                <p>Have you tried using 'justify-content: space-between'?</p>
-                <footer>Posted by: Student B on 2025-11-12</footer>
-                <div>
-                    <a href="#" class="button secondary">Edit</a>
-                    <a href="#" class="button contrast">Delete</a>
-                </div>
-            </article>
-
-            <article>
-                <p>Also check the flex-wrap property for multi-line layouts.</p>
-                <footer>Posted by: Student C on 2025-11-13</footer>
-                <div>
-                    <a href="#" class="button secondary">Edit</a>
-                    <a href="#" class="button contrast">Delete</a>
-                </div>
-            </article>
+        <div id="reply-list-container">
+            <!-- Replies will be dynamically added here by JS -->
         </div>
     </section>
 
@@ -63,5 +55,7 @@
 
 </main>
 
+<!-- JS -->
+<script src="topic.js" defer></script>
 </body>
 </html>
