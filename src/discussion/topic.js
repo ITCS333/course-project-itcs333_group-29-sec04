@@ -12,17 +12,20 @@ const newReplyText = document.querySelector('#new-reply');
 
 // --- Functions ---
 
+// Get topic ID from URL query string
 function getTopicIdFromURL() {
     const params = new URLSearchParams(window.location.search);
     return params.get('id');
 }
 
+// Render the original post
 function renderOriginalPost(topic) {
     topicSubject.textContent = topic.subject;
     opMessage.textContent = topic.message;
-    opFooter.textContent = `Posted by: ${topic.author} on ${topic.date}`;
+    opFooter.textContent = Posted by: ${topic.author} on ${topic.date};
 }
 
+// Create a single reply article
 function createReplyArticle(reply) {
     const article = document.createElement('article');
 
@@ -31,13 +34,12 @@ function createReplyArticle(reply) {
     article.appendChild(p);
 
     const footer = document.createElement('footer');
-    footer.textContent = `Posted by: ${reply.author} on ${reply.date}`;
+    footer.textContent = Posted by: ${reply.author} on ${reply.date};
     article.appendChild(footer);
 
     const actionsDiv = document.createElement('div');
-    const deleteBtn = document.createElement('a');
-    deleteBtn.href = "#";
-    deleteBtn.className = "button contrast delete-reply-btn";
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = "contrast delete-reply-btn";
     deleteBtn.dataset.id = reply.id;
     deleteBtn.textContent = "Delete";
     actionsDiv.appendChild(deleteBtn);
@@ -47,6 +49,7 @@ function createReplyArticle(reply) {
     return article;
 }
 
+// Render all replies
 function renderReplies() {
     replyListContainer.innerHTML = "";
     currentReplies.forEach(reply => {
@@ -55,6 +58,7 @@ function renderReplies() {
     });
 }
 
+// Handle adding a new reply
 function handleAddReply(event) {
     event.preventDefault();
 
@@ -62,7 +66,7 @@ function handleAddReply(event) {
     if (!text) return;
 
     const newReply = {
-        id: `reply_${Date.now()}`,
+        id: reply_${Date.now()},
         author: 'Student',
         date: new Date().toISOString().split('T')[0],
         text
@@ -73,6 +77,7 @@ function handleAddReply(event) {
     newReplyText.value = "";
 }
 
+// Handle delete reply button click
 function handleReplyListClick(event) {
     if (event.target.classList.contains('delete-reply-btn')) {
         const id = event.target.dataset.id;
@@ -81,6 +86,7 @@ function handleReplyListClick(event) {
     }
 }
 
+// Initialize page
 async function initializePage() {
     currentTopicId = getTopicIdFromURL();
 
@@ -117,4 +123,4 @@ async function initializePage() {
 }
 
 // --- Initial Page Load ---
-initializePage();
+initializePage()
