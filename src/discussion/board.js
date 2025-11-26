@@ -13,33 +13,30 @@ function createTopicArticle(topic) {
     // Title with link
     const h3 = document.createElement('h3');
     const link = document.createElement('a');
-    link.href = `topic.html?id=${topic.id}`;
+    link.href = topic-detail.html?id=${topic.id}; // Link to Topic Details page
     link.textContent = topic.subject;
     h3.appendChild(link);
     article.appendChild(h3);
 
     // Footer with author and date
     const footer = document.createElement('footer');
-    footer.textContent = `Posted by: ${topic.author} on ${topic.date}`;
+    footer.textContent = Posted by: ${topic.author} on ${topic.date};
     article.appendChild(footer);
 
     // Action buttons
     const actionsDiv = document.createElement('div');
 
-    const editBtn = document.createElement('a');
-    editBtn.href = "#";
-    editBtn.className = "button secondary";
+    const editBtn = document.createElement('button');
     editBtn.textContent = "Edit";
+    editBtn.className = "secondary";
 
-    const deleteBtn = document.createElement('a');
-    deleteBtn.href = "#";
-    deleteBtn.className = "button contrast delete-btn";
-    deleteBtn.dataset.id = topic.id;
+    const deleteBtn = document.createElement('button');
     deleteBtn.textContent = "Delete";
+    deleteBtn.className = "contrast delete-btn";
+    deleteBtn.dataset.id = topic.id;
 
     actionsDiv.appendChild(editBtn);
     actionsDiv.appendChild(deleteBtn);
-
     article.appendChild(actionsDiv);
 
     return article;
@@ -62,7 +59,7 @@ function handleCreateTopic(event) {
     if (!subject || !message) return;
 
     const newTopic = {
-        id: `topic_${Date.now()}`,
+        id: topic_${Date.now()},
         subject,
         message,
         author: "Student",
@@ -82,6 +79,7 @@ function handleTopicListClick(event) {
     }
 }
 
+// --- Initialize Page ---
 async function loadAndInitialize() {
     try {
         const response = await fetch('topics.json');
