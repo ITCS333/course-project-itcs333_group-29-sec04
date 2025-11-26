@@ -226,8 +226,8 @@ async function initializePage() {
   currentComments=commentsData.data || []; //changed to match php resulting data
   renderWeekDetails(correctWeek);
   renderComments();
-  form.addEventListener('submit',handleDeleteComment);
-  commentsList.addEventListener("click",handleClickComment);
+  form.addEventListener('submit',handleAddComment);
+  commentsList.addEventListener("click",handleDeleteComment);
 }
 
 // --- Initial Page Load ---
