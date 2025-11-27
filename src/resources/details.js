@@ -23,7 +23,15 @@ let currentComments = [];
 
 // --- Element Selections ---
 // TODO: Select all the elements you added IDs for in step 2.
+const resourceTitle = document.getElementById("resource-title");
+const description = document.getElementById("resource-description");
+const resourceLink = document.getElementById("resource-link");
+const commentList = document.getElementById("comment-list");
+const commentForm = document.getElementById("comment-form");
+const newComment = document.getElementById("new-comment");
 
+const RESOURCE_URL = "./api/index.php?resource=resources";
+const COMMENTS_URL = "./api/index.php?resource=comments";
 // --- Functions ---
 
 /**
@@ -35,6 +43,10 @@ let currentComments = [];
  */
 function getResourceIdFromURL() {
   // ... your implementation here ...
+  const queryString = window.location.search;
+  const params = new URLSearchParams(queryString);
+  const id = params.get('id');
+  return id;
 }
 
 /**
@@ -47,6 +59,9 @@ function getResourceIdFromURL() {
  */
 function renderResourceDetails(resource) {
   // ... your implementation here ...
+  resourceTitle.textContent = resource.title;
+  description.textContent = resource.description;
+  resourceLink.href = resource.link;
 }
 
 /**
@@ -57,6 +72,21 @@ function renderResourceDetails(resource) {
  */
 function createCommentArticle(comment) {
   // ... your implementation here ...
+  const article = document.createElement("article");
+  const paragraph = document.createElement("p");
+  const footer = document.createElement("footer");
+  const deletebtn = document.createElement("button");
+  deletebtn.classList.add("comment-delete-btn");
+  deletebtn.textContent = "×";
+  paragraph.textContent = comment.text;
+  footer.textContent = comment.author;
+  deletebtn.dataset.id = comment.id;
+  article.appendChild(paragraph);
+  article.appendChild(footer);
+  article.appendChild(deletebtn);
+  article.classList.add("comment-item");
+
+  return article;
 }
 
 /**
@@ -69,6 +99,11 @@ function createCommentArticle(comment) {
  */
 function renderComments() {
   // ... your implementation here ...
+  commentList.innerHTML = "";
+  currentComments.forEach(comment => {
+    const createdArticle = createCommentArticle(comment);
+    commentList.appendChild(createdArticle);
+  });
 }
 
 /**
@@ -86,7 +121,47 @@ function renderComments() {
  */
 function handleAddComment(event) {
   // ... your implementation here ...
+  event.preventDefault();
+  const comment = newComment.value;
+  if (comment === "") return;
+  const rid = getResourceIdFromURL();
+  const commentObject = { id: "", resource_id: rid, author: "Student", text: comment };
+
+  fetch(COMMENTS_URL + "&action=comment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(commentObject)
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        commentObject.id = result.id;
+        currentComments.push(commentObject);
+        renderComments();
+        commentForm.reset();
+      }
+      else console.error("Comments generation failed:", result.message);
+    });
 }
+
+function handleDeleteComment(event) {
+  if (event.target.classList.contains("comment-delete-btn")) {
+    const data = Number(event.target.dataset.id);
+    fetch(`${COMMENTS_URL}&action=delete_comment&id=${data}`, {
+      method: "DELETE"
+    })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          currentComments = currentComments.filter(d => Number(d.id) !== data);
+          renderComments();
+        }
+        else { console.error("Delete failed:", result.message); }
+      })
+
+  }
+}
+
 
 /**
  * TODO: Implement an `initializePage` function.
@@ -107,6 +182,29 @@ function handleAddComment(event) {
  */
 async function initializePage() {
   // ... your implementation here ...
+  currentResourceId = getResourceIdFromURL();
+  if (!currentResourceId) {
+    resourceTitle.textContent = "Resource not found";
+    return;
+  }
+  const resourceResponse = await fetch(RESOURCE_URL + "&id=" + currentResourceId);
+  const resource = await resourceResponse.json();
+  const commentResponse = await fetch(COMMENTS_URL + "&action=comments&resource_id=" + currentResourceId);
+  const comment = await commentResponse.json();
+  const findResource = resource.data;
+  console.log(comment.data);
+
+  // let findResource = resource.find(r => r.id === currentResourceId);
+
+  if (findResource) {
+    currentComments = comment.data || [];
+    renderResourceDetails(findResource);
+    renderComments();
+    commentForm.addEventListener("submit", handleAddComment);
+    commentList.addEventListener("click", handleDeleteComment);
+  }
+  else { resourceTitle.textContent = "error"; }
+
 }
 
 // --- Initial Page Load ---

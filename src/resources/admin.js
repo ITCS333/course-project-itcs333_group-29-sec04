@@ -17,8 +17,16 @@ let resources = [];
 
 // --- Element Selections ---
 // TODO: Select the resource form ('#resource-form').
-
+const resourceForm = document.querySelector("#resource-form");
 // TODO: Select the resources table body ('#resources-tbody').
+const resourcesTableBody = document.querySelector("#resources-tbody");
+const RESOURCE_URL = "./api/index.php?resource=resources";
+
+const searchInput = document.getElementById("Search-input");
+const filterSelect = document.getElementById("filter-select");
+const orderBtn = document.getElementById("order-btn");
+let sortAsc = true;
+let timer;
 
 // --- Functions ---
 
@@ -34,6 +42,32 @@ let resources = [];
  */
 function createResourceRow(resource) {
   // ... your implementation here ...
+  const row = document.createElement("tr");
+  const title = document.createElement("td");
+  title.textContent = resource.title;
+  row.appendChild(title);
+
+  const description = document.createElement("td");
+  description.textContent = resource.description;
+  row.appendChild(description);
+
+  const buttonstd = document.createElement("td");
+  buttonstd.classList.add("action-td");
+
+  const b1 = document.createElement("button");
+  b1.textContent = "Edit";
+  b1.classList.add("edit-btn");
+  b1.dataset.id = resource.id;
+  buttonstd.appendChild(b1);
+
+  const b2 = document.createElement("button");
+  b2.textContent = "Delete";
+  b2.classList.add("delete-btn");
+  b2.dataset.id = resource.id;
+  buttonstd.appendChild(b2);
+
+  row.appendChild(buttonstd);
+  return row;
 }
 
 /**
@@ -46,6 +80,11 @@ function createResourceRow(resource) {
  */
 function renderTable() {
   // ... your implementation here ...
+  resourcesTableBody.innerHTML = "";
+  resources.forEach(res => {
+    const r = createResourceRow(res);
+    resourcesTableBody.appendChild(r);
+  });
 }
 
 /**
@@ -61,7 +100,60 @@ function renderTable() {
  */
 function handleAddResource(event) {
   // ... your implementation here ...
+  event.preventDefault();
+  const title = document.getElementById("resource-title").value;
+  const description = document.getElementById("resource-description").value;
+  const link = document.getElementById("resource-link").value;
+  const edit = Number(resourceForm.dataset.editId);
+  if (!edit) {
+    let newResource = { id: "", title, description, link };
+    fetch(RESOURCE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newResource)
+    })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          newResource.id = result.id
+          resources.push(newResource);
+          renderTable();
+          resourceForm.reset();
+          resourcesTableBody.scrollIntoView({ behavior: "smooth" });
+        }
+        else console.error("Insertion failed:", result.message);
+      });
+  }
+  else {
+    const resource = resources.find(r => Number(r.id) === edit);
+    resource.title = title;
+    resource.description = description;
+    resource.link = link;
+
+    fetch(`${RESOURCE_URL}&id=${edit}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: edit,
+        title,
+        description,
+        link
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) console.error("Update failed:", data.message);
+        else {
+          renderTable();
+          resourceForm.reset();
+        }
+      });
+
+    delete resourceForm.dataset.editId;
+    resourceForm.querySelector("button[type='submit']").textContent = "Add Resource";
+  }
 }
+
 
 /**
  * TODO: Implement the handleTableClick function.
@@ -75,7 +167,61 @@ function handleAddResource(event) {
  */
 function handleTableClick(event) {
   // ... your implementation here ...
+  if (event.target.classList.contains("delete-btn")) {
+    const data = Number(event.target.dataset.id);
+
+    fetch(`${RESOURCE_URL}&id=${data}`, {
+      method: "DELETE"
+    })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success) {
+          resources = resources.filter(d => Number(d.id) !== data);
+          renderTable();
+        }
+        else { console.error("Delete failed:", result.message); }
+      })
+
+  }
+
+  else if (event.target.classList.contains("edit-btn")) {
+    const id = Number(event.target.dataset.id);
+    const resource = resources.find(d => Number(d.id) === id);
+    if (!resource) return;
+
+    document.getElementById("resource-title").value = resource.title;
+    document.getElementById("resource-description").value = resource.description;
+    document.getElementById("resource-link").value = resource.link;
+
+    resourceForm.dataset.editId = id;
+    resourceForm.querySelector("button[type='submit']").textContent = "Update Resource";
+    resourceForm.scrollIntoView({ behavior: "smooth" });
+  }
 }
+
+
+function loadFilteredResources() {
+  const search = searchInput.value.trim();
+  const sort = filterSelect.value;
+  const order = sortAsc ? "asc" : "desc";
+
+  const url = `${RESOURCE_URL}&search=${encodeURIComponent(search)}&sort=${sort}&order=${order}`;
+
+  fetch(url).then(response => response.json()).then(result => {
+    resources = result.data;
+    renderTable();
+  }).catch(error => console.error("Error fetching filtered resources:", error));
+}
+searchInput.addEventListener("input", e => {
+  clearTimeout(timer);
+  timer = setTimeout(() => loadFilteredResources(), 300);
+});
+filterSelect.addEventListener("change", loadFilteredResources);
+orderBtn.addEventListener("click", () => {
+  sortAsc = !sortAsc;
+  orderBtn.textContent = sortAsc ? "Asc" : "Desc";
+  loadFilteredResources();
+});
 
 /**
  * TODO: Implement the loadAndInitialize function.
@@ -89,6 +235,12 @@ function handleTableClick(event) {
  */
 async function loadAndInitialize() {
   // ... your implementation here ...
+  const response = await fetch(RESOURCE_URL);
+  const result = await response.json();
+  resources = result.data || [];
+  renderTable();
+  resourceForm.addEventListener("submit", handleAddResource);
+  resourcesTableBody.addEventListener("click", handleTableClick);
 }
 
 // --- Initial Page Load ---

@@ -13,9 +13,9 @@
 
 // --- Element Selections ---
 // TODO: Select the section for the resource list ('#resource-list-section').
-
+const listSection = document.querySelector("#resource-list-section");
+const RESOURCE_URL = "./api/index.php?resource=resources";
 // --- Functions ---
-
 /**
  * TODO: Implement the createResourceArticle function.
  * It takes one resource object {id, title, description}.
@@ -25,7 +25,20 @@
  */
 function createResourceArticle(resource) {
   // ... your implementation here ...
+  const article = document.createElement("article");
+  const heading = document.createElement("h2");
+  const description = document.createElement("p");
+  const link = document.createElement("a");
+  heading.textContent = resource.title;
+  description.textContent = resource.description;
+  link.textContent = "View Resource & Discussion";
+  link.href = `details.html?id=${resource.id}`;
+  article.appendChild(heading);
+  article.appendChild(description);
+  article.appendChild(link);
+  return article;
 }
+
 
 /**
  * TODO: Implement the loadResources function.
@@ -40,6 +53,22 @@ function createResourceArticle(resource) {
  */
 async function loadResources() {
   // ... your implementation here ...
+  const response = await fetch(RESOURCE_URL);
+  if (!response.ok) {
+    throw new Error("Could not fetch resources");
+  }
+  const resource = await response.json();
+  if (!resource.success) {
+    throw new Error(resource.error || "API returned an error");
+  }
+  const resourcesData = resource.data || [];
+
+  listSection.innerHTML = "";
+  resourcesData.forEach(e => {
+    const article = createResourceArticle(e);
+    listSection.appendChild(article);
+  });
+
 }
 
 // --- Initial Page Load ---
