@@ -179,7 +179,7 @@ function getResourceById($db, $resourceId) {
     // TODO: Validate that resource ID is provided and is numeric
     // If not, return error response with 400 status
     if($resourceId == null || !is_numeric($resourceId)) 
-    sendResponse(["status" => false, "message" => "Inavlid Resource ID"],400);
+    sendResponse(["success" => false, "message" => "Inavlid Resource ID"],400);
     // TODO: Prepare SQL query to select resource by id
     // SELECT id, title, description, link, created_at FROM resources WHERE id = ?
     $sql = " SELECT id, title, description, link, created_at FROM resources WHERE id = ?";
@@ -192,9 +192,9 @@ function getResourceById($db, $resourceId) {
     $fetched = $statement->fetch(PDO::FETCH_ASSOC);
     // TODO: Check if resource exists
     if ($fetched)
-    sendResponse(["status" => true, "data" => $fetched]);
+    sendResponse(["success" => true, "data" => $fetched]);
 else 
-  sendResponse(["status" => false, "message" => "Resource Not Found"],404);
+  sendResponse(["success" => false, "message" => "Resource Not Found"],404);
     // If yes, return success response with resource data
     // If no, return error response with 404 status
 }
@@ -219,7 +219,7 @@ function createResource($db, $data) {
     // Check if title and link are provided and not empty
     // If any required field is missing, return error response with 400 status
     if(!validateRequiredFields($data,["title","link"])){
-    sendResponse(["status" => false, "message" => "Both title and link are required"],400);}
+    sendResponse(["success" => false, "message" => "Both title and link are required"],400);}
     // TODO: Sanitize input data
     // Trim whitespace from all fields
     $title = sanitizeInput($data["title"]);
@@ -228,7 +228,7 @@ function createResource($db, $data) {
     // Validate URL format for link using filter_var with FILTER_VALIDATE_URL
     // If URL is invalid, return error response with 400 status
     if(!validateUrl($data["link"]))
-    sendResponse(["status" => false, "message" => "Invalid link"],400);
+    sendResponse(["success" => false, "message" => "Invalid link"],400);
     // TODO: Set default value for description if not provided
     // Use empty string as default
     if(empty($data["description"]))
