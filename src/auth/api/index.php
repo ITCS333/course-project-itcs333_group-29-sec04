@@ -104,13 +104,14 @@ if (strlen($password) < 8) {
 // TODO: Get the database connection using the provided function
 // Assume getDBConnection() returns a PDO instance with error mode set to exception
 // The function is defined elsewhere (e.g., in a config file or db.php)
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/Database.php';
 
 
 // TODO: Wrap database operations in a try-catch block to handle PDO exceptions
 // This ensures you can return a proper JSON error response if something goes wrong
 try{
-    $pdo = getDBConnection();
+    $database = new Database();
+    $pdo = $database->getConnection();
 
     // --- Prepare SQL Query ---
     // TODO: Write a SQL SELECT query to find the user by email
