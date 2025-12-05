@@ -19,7 +19,7 @@
      <title>Admin Portal</title>
 
     <!-- TODO: Link to a CSS file or a CSS framework. -->
-     <link rel="stylesheet" href="common/style.css" />
+     <link rel="stylesheet" href="../common/styles.css">
 
 </head>
 <body>
@@ -41,7 +41,7 @@
              <h2>Change Your Password</h2>
 
             <!-- TODO: Create a 'form' for changing the password. The 'action' can be '#'. -->
-             <form action="#">
+             <form action="#" id="password-form">
 
                 <!-- TODO: Use a 'fieldset' to group the password-related fields. -->
                  <fieldset>
@@ -100,7 +100,7 @@
                  <summary>Add New Student</summary>
 
                 <!-- TODO: Create a 'form' for adding a new student. 'action' can be '#'. -->
-                 <form action="#">
+                 <form action="#" id="add-student-form">
                     <!-- TODO: Use a 'fieldset' to group the new student fields. -->
                      <fieldset>
                         <!-- TODO: Add a 'legend' for the fieldset, e.g., "New Student Information". -->
@@ -112,7 +112,7 @@
                              - input 'type': "text"
                              - input: required -->
                              <label for="student-name">Full name:</label>
-                             <input id="student-name" type="test" required>
+                             <input id="student-name" type="text" required>
 
                         <!-- TODO: Add a 'label' and 'input' for the student's ID.
                              - label 'for': "student-id"
@@ -155,6 +155,14 @@
             <!-- Subsection 2.2: Student List -->
             <!-- TODO: Add a sub-heading (e.g., 'h3') for the list of students, "Registered Students". -->
              <h3>Registered Students</h3>
+             <div>
+                <label for="search-input">Search by name:</label>
+                <input
+                  type="text"
+                  id="search-input"
+                  placeholder="Type a name to search"
+                >
+            </div>
 
             <!-- TODO: Create a 'table' to display the list of students. Give it an id="student-table". -->
              <table id="student-table">
@@ -174,56 +182,42 @@
 
                 <!-- TODO: Create a 'tbody' for the table body, where student data will go. -->
                  <tbody>
-                    <!-- TODO: For now, add 2-3 rows of dummy data so you can see how the table is structured. -->
-                    <!-- Example Student Row: -->
-                    <!-- TODO: Create a 'tr' for a student record. -->
-                     <tr>
-                        <!-- TODO: Create 'td' (table data) cells for a student's name (e.g., "John Doe"), ID (e.g., "12345"), and email (e.g., "john.doe@example.com"). -->
-                         <td>John Doe</td>
-                         <td>12345</td>
-                         <td>john.doe@example.com</td>
-                        <!-- TODO: Create a final 'td' for action buttons. -->
-                    <td>
-                            <!-- TODO: Add an "Edit" button. -->
-                             <button>Edit</button>
-                            <!-- TODO: Add a "Delete" button. -->
-                             <button>Delete</button>
-                        <!-- End of the actions 'td'. -->
-                     </td>
-                        
-                    <!-- End of the student row. -->
-                     </tr>
-
-                    <!-- TODO: Add another 'tr' for a second student as another example. -->
-                     <tr>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>12345</td>
+                        <td>john.doe@example.com</td>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Amal Alasfoor</td>
                         <td>17890</td>
                         <td>aml.as@example.com</td>
-                       <td>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                       </td>
-                     </tr>
-                     <tr>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Fatima Buloshi</td>
                         <td>66661</td>
                         <td>fatima.bu@example.com</td>
-                       <td>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                       </td>
-                     </tr>
-                     <tr>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Kawthar Alqassab</td>
                         <td>23456</td>
                         <td>kwthr.qa@example.com</td>
-                       <td>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                       </td>
-                     </tr>
-                
-                <!-- End of 'tbody'. -->
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
                  </tbody>
             <!-- End of the table. -->
              </table>
@@ -233,6 +227,7 @@
 
     <!-- End of the main content area. -->
      </main>
+     <script src="manage_users.js" defer></script>
 
 </body>
 </html>

@@ -24,26 +24,8 @@
 
 
     <!-- TODO: Link to a CSS file or a CSS framework like PicoCSS or Bootstrap to style the page. You can use a CDN link. -->
-     <link 
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
-    rel="stylesheet">
-    <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      
-    }
-    .login-card {
-    width: 100%;
-    max-width: 450px;
-    padding: 1rem;
-    margin: auto;
-  }
-    
-    
-  </style>
+     <link rel="stylesheet" href="../common/styles.css">
+  
 
 
 </head>
@@ -66,7 +48,7 @@
 
             <!-- The form element will wrap all the inputs. -->
             <!-- TODO: Create a 'form' element. The 'action' can be '#' for now. -->
-             <form action="#" method="post">
+             <form action="#" method="post" id="login-form">
 
                 <!-- TODO: Use a 'fieldset' to group all the related controls for the login form. -->
                  <fieldset>
@@ -114,6 +96,7 @@
                 
                 <!-- End of the fieldset. -->
                  </fieldset>
+                 <div id="message-container"></div>
 
 
             <!-- End of the form element. -->
@@ -125,7 +108,7 @@
 
     <!-- End of the main content area. -->
      </main>
-
+ <script src="login.js" defer></script>
 </body>
 </html>
 
