@@ -1,93 +1,98 @@
 <!--
   Requirement: Create the General Discussion Board
+
+  Instructions:
+  This page will list all discussion topics and include a form to create a new one.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Character Encoding -->
+    <!-- TODO: Add the 'meta' tag for character encoding (UTF-8). -->
     <meta charset="UTF-8">
     
-    <!-- Responsive Viewport -->
+    <!-- TODO: Add the responsive 'viewport' meta tag. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Page Title -->
+    <!-- TODO: Add a title, e.g., "Discussion Board". -->
     <title>General Discussion Board</title>
 
-    <!-- Link to shared CSS -->
+    <!-- TODO: Link to your CSS framework or stylesheet. -->
     <link rel="stylesheet" href="../common/styles.css">
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- TODO: Create a 'header' with a main heading ('h1') "General Discussion Board". -->
     <header>
         <h1>General Discussion Board</h1>
     </header>
 
-    <!-- Main Content -->
+    <!-- TODO: Create the 'main' content area. -->
     <main>
 
         <!-- Section 1: Create a New Topic -->
+        <!-- TODO: Create a 'section' for the "new topic" form. -->
         <section id="new-topic-section">
+            <!-- TODO: Add a sub-heading ('h2') "Start a New Topic". -->
             <h2>Start a New Topic</h2>
 
+            <!-- TODO: Create a 'form' with an id "new-topic-form". Action can be '#'. -->
             <form id="new-topic-form" action="#">
+                <!-- TODO: Use a 'fieldset' to group the form controls. -->
                 <fieldset>
+                    <!-- TODO: Add a 'legend', e.g., "New Topic Details". -->
                     <legend>New Topic Details</legend>
 
-                    <!-- Topic Subject -->
+                    <!-- TODO: Add a 'label' and 'input' for the topic subject.
+                         - label 'for': "topic-subject"
+                         - input 'id': "topic-subject", type="text", required -->
                     <label for="topic-subject">Topic Subject</label>
                     <input type="text" id="topic-subject" required placeholder="Enter the topic title">
 
-                    <!-- Topic Message -->
+                    <!-- TODO: Add a 'label' and 'textarea' for the main message.
+                         - label 'for': "topic-message"
+                         - textarea 'id': "topic-message", rows="6", required -->
                     <label for="topic-message">Message</label>
                     <textarea id="topic-message" rows="6" required placeholder="Write your message here..."></textarea>
 
-                    <!-- Submit Button -->
+                    <!-- TODO: Add a 'button' to submit the form.
+                         - id="create-topic", type="submit", Text: "Create Topic" -->
                     <button id="create-topic" type="submit">Create Topic</button>
                 </fieldset>
+                <!-- End of fieldset. -->
             </form>
+            <!-- End of form. -->
         </section>
+        <!-- End of form section. -->
+
 
         <!-- Section 2: Existing Topics -->
+        <!-- TODO: Create a 'section' to display the list of current topics. -->
         <section id="existing-topics">
+            <!-- TODO: Add a sub-heading ('h2') "All Topics". -->
             <h2>All Topics</h2>
 
-            <div id="topic-list-container">
-                <!-- Dummy Topic 1 -->
-                <article>
-                    <h3><a href="topic-detail.html">Question about CSS Flexbox</a></h3>
-                    <footer>Posted by: Student A on 2025-11-10</footer>
-                    <div>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                    </div>
-                </article>
-
-                <!-- Dummy Topic 2 -->
-                <article>
-                    <h3><a href="topic-detail.html">Help Needed with HTML Forms</a></h3>
-                    <footer>Posted by: Student B on 2025-11-12</footer>
-                    <div>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                    </div>
-                </article>
-
-                <!-- Dummy Topic 3 -->
-                <article>
-                    <h3><a href="topic-detail.html">JavaScript Event Listener Question</a></h3>
-                    <footer>Posted by: Student C on 2025-11-15</footer>
-                    <div>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                    </div>
-                </article>
+            <!-- TODO: Add a container (like a 'div') to hold the list of topics. -->
+            <div id="search-filter-group">
+                <input type="text" id="Search-input" placeholder="Search by subject, message, or author ...">
+                <select id="filter-select">
+                    <option value="subject">Sort by subject</option>
+                    <option value="author">Sort by author</option>
+                    <option value="created_at">Sort by creation date</option>
+                </select>
+                <button id="order-btn" title="order by">Asc</button>
             </div>
+
+            <div id="topic-list-container">
+                <!-- Topic articles will be dynamically added here by JS -->
+            </div>
+            <!-- End of topics container. -->
         </section>
+        <!-- End of list section. -->
 
     </main>
+    <!-- End of main. -->
 
-    <!-- Link to JS -->
+    <!-- JS -->
     <script src="board.js" defer></script>
 </body>
 </html>
