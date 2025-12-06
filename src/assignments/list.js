@@ -15,6 +15,7 @@
 // TODO: Select the section for the assignment list ('#assignment-list-section').
 const assignmentList = document.querySelector('#assignment-list-section');
 // --- Functions ---
+const ASSIGNMENT_URL = `./api/index.php?resource=assignments`;
 
 /**
  * TODO: Implement the createAssignmentArticle function.
@@ -26,21 +27,24 @@ const assignmentList = document.querySelector('#assignment-list-section');
 function createAssignmentArticle(assignment) {
 const article = document.createElement('article');
 
-  const h2 = document.createElement('h2');
-  h2.textContent = assignment.title;
+  const title = document.createElement('h2');
+  title.textContent = assignment.title;
 
   const due = document.createElement('p');
-  due.textContent = `Due: ${assignment.dueDate}`;
+  due.textContent = `Due: ${assignment.due_date}`;
 
   const desc = document.createElement('p');
   desc.textContent = assignment.description;
 
   const link = document.createElement('a');
-  link.href = `details.html?id=${assignment.id}`;
+  link.href = "details.html?id=" + assignment.id;
   link.textContent = "View Details & Discussion";
 
-  article.append(h2, due, desc, link);
-  return article;
+  article.appendChild(title);
+  article.appendChild(due);
+  article.appendChild(desc);
+  article.appendChild(link);
+    return article;
 }
 
 /**
@@ -56,17 +60,25 @@ const article = document.createElement('article');
  */
 async function loadAssignments() {
   try{
-const respond = await fetch('/src/assignments/api/assignments.json');
-const assignments = await respond.json();
+const respond = await fetch(ASSIGNMENT_URL);
+    if(!respond.ok){
+      throw new Error("Failed to fetch assignments");
+    }
+const result = await respond.json();
+    if(!result.success){
+      throw new Error(result.error || "Could not fetch assignments");
+    }
+const assignmentsData = result.data;
 
 assignmentList.innerHTML = '';
 
-assignments.forEach(assignment => {
+assignmentsData.forEach(assignment => {
+  assignment.dueDate = assignment.due_date;
   const article = createAssignmentArticle(assignment);
   assignmentList.appendChild(article);
 });
   } catch(error) {
-    console.error("Error loading assignments", error);
+    console.log("Error loading assignments", error);
   }
 }
 

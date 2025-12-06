@@ -10,16 +10,47 @@
   
   3. Implement the TODOs below.
 */
+// PHP URL
+const ASSIGNMENT_URL = `./api/index.php?resource=assignments`;
 
 // --- Global Data Store ---
-// This will hold the assignments loaded from the JSON file.
 let assignments = [];
 
 // --- Element Selections ---
 // TODO: Select the assignment form ('#assignment-form').
-const form = document.querySelector('#assignment-form');
 // TODO: Select the assignments table body ('#assignments-tbody').
+const form = document.querySelector('#assignment-form');
 const table = document.querySelector('#assignments-tbody');
+
+// Some UI elements used for edit state 
+const submitBtn = document.getElementById('add-assignment'); 
+const cancelBtn = document.getElementById('cancel-edit-button');
+const formTitle = document.getElementById('form-title');
+
+const searchInput = document.getElementById("Search-input");
+const filterSelect = document.getElementById("filter-select");
+const orderBtn = document.getElementById("order-btn");
+let sortAsc = true;
+let timer;
+
+// ensure required DOM exists
+if (!form) console.log('Form element #assignment-form not found in DOM');
+if (!table) console.log('Table body #assignments-tbody not found in DOM');
+
+// --- Helpers ---
+function safeJson(res) {
+  return res.text().then(text => {
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      // make the error clearer and include server response
+      const e = new Error('Invalid JSON response from API');
+      e.serverResponse = text;
+      throw e;
+    }
+  });
+}
+
 // --- Functions ---
 
 /**
@@ -34,27 +65,32 @@ const table = document.querySelector('#assignments-tbody');
  */
 function createAssignmentRow(assignment) {
   const tr = document.createElement('tr');
-  const Title = document.createElement('td');
-  Title.textContent = assignment.title;
-  tr.appendChild(Title);
-  const dueDate = document.createElement('td');
-  dueDate.textContent = assignment.dueDate;
-  tr.appendChild(dueDate);
 
-  const actions = document.createElement('td');
-  actions.classList.add("action-td");
+  const titleTd = document.createElement('td');
+  titleTd.textContent = assignment.title ?? '';
+  tr.appendChild(titleTd);
+
+  const dueDateTd = document.createElement('td');
+  // match DB/ PHP field name: due_date
+  dueDateTd.textContent = assignment.due_date ?? '';
+  tr.appendChild(dueDateTd);
+
+  const actionsTd = document.createElement('td');
+  actionsTd.classList.add('action-td');
+
   const editBtn = document.createElement('button');
   editBtn.className = 'edit-btn';
   editBtn.dataset.id = assignment.id;
   editBtn.textContent = 'Edit';
-  actions.appendChild(editBtn);
+
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'delete-btn';
   deleteBtn.dataset.id = assignment.id;
   deleteBtn.textContent = 'Delete';
-  actions.appendChild(deleteBtn);
 
-  tr.appendChild(actions);
+  actionsTd.appendChild(editBtn);
+  actionsTd.appendChild(deleteBtn);
+  tr.appendChild(actionsTd);
 
   return tr;
 }
@@ -68,13 +104,19 @@ function createAssignmentRow(assignment) {
  * append the resulting <tr> to `assignmentsTableBody`.
  */
 function renderTable() {
-table.innerHTML='';
+  if (!table) return;
+  table.innerHTML = '';
+  assignments.forEach(a => table.appendChild(createAssignmentRow(a)));
+}
 
-assignments.forEach((assignment) => {
- const tr = createAssignmentRow(assignment);
- table.appendChild(tr);
-});
-
+// reset edit state helper
+function resetEdit() {
+  if (!form) return;
+  form.reset();
+  delete form.dataset.editId;
+  if (submitBtn) submitBtn.textContent = 'Add Assignment';
+  if (cancelBtn) cancelBtn.style.display = 'none';
+  if (formTitle) formTitle.textContent = 'Add a New Assignment';
 }
 
 /**
@@ -89,27 +131,75 @@ assignments.forEach((assignment) => {
  * 6. Reset the form.
  */
 function handleAddAssignment(event) {
- event.preventDefault();
+  event.preventDefault();
+  if (!form) return;
 
- const title = document.querySelector('#assignment-title').value;
- const description = document.querySelector('#assignment-description').value;
- const dueDate = document.querySelector('#assignment-due-date').value;
- const files = document.querySelector('#assignment-files').value;
+  const title = document.querySelector('#assignment-title')?.value ?? '';
+  const description = document.querySelector('#assignment-description')?.value ?? '';
+  const due_date = document.querySelector('#assignment-due-date')?.value ?? '';
+  const filesRaw = document.querySelector('#assignment-files')?.value ?? '';
+  const files = filesRaw.split('\n').map(s => s.trim()).filter(s => s);
 
- const newAssignment = {
-  id: `asg_${Date.now()}`,
-  title,
-  description,
-  dueDate,
-  files,
- };
+  if (!form.dataset.editId) {
+    // Create
+    const newAssignment = {
+      id: '',
+      title,
+      description,
+      due_date,   // IMPORTANT: use due_date to match DB/PHP
+      files
+    };
 
- assignments.push(newAssignment);
+    fetch(ASSIGNMENT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAssignment)
+    })
+    .then(safeJson)
+    .then(result => {
+      if (!result || result.success !== true) {
+        throw new Error(result?.error || 'Could not add assignment');
+      }
+      newAssignment.id = result.data;
+      assignments.push(newAssignment);
+      renderTable();
+      resetEdit();
+      table?.scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(err => {
+      console.error('Error adding assignment:', err);
+      if (err.serverResponse) {
+        console.error('Server response (not JSON):\n', err.serverResponse);
+      }
+    });
 
- renderTable();
+  } else {
+    // Update
+    const id = form.dataset.editId;
+    const updated = { id, title, description, due_date, files };
 
- event.target.reset();
-
+    fetch(`${ASSIGNMENT_URL}&id=${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    })
+    .then(safeJson)
+    .then(result => {
+      if (!result || result.success !== true) {
+        throw new Error(result?.error || 'Could not update assignment');
+      }
+      const idx = assignments.findIndex(a => String(a.id) === String(id));
+      if (idx > -1) {
+        assignments[idx] = Object.assign({}, assignments[idx], updated);
+      }
+      renderTable();
+      resetEdit();
+      table?.scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(err => {
+      console.error('Error updating assignment:', err);
+    });
+  }
 }
 
 /**
@@ -123,14 +213,68 @@ function handleAddAssignment(event) {
  * 4. Call `renderTable()` to refresh the list.
  */
 function handleTableClick(event) {
-const target = event.target;
+  const t = event.target;
+  if (!t) return;
 
-if(target.classList.contains('delete-btn')){
-  const assignmentId = target.dataset.id;
-  assignments = assignments.filter(assignment => assignment.id !== assignmentId);
-  return renderTable();
- }
+  if (t.classList.contains('delete-btn')) {
+    const id = t.dataset.id;
+    if (!confirm('Delete this assignment?')) return;
+
+    fetch(`${ASSIGNMENT_URL}&id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+      .then(safeJson)
+      .then(result => {
+        if (!result || result.success !== true) {
+          throw new Error(result?.error || 'Could not delete');
+        }
+        assignments = assignments.filter(a => String(a.id) !== String(id));
+        renderTable();
+      })
+      .catch(err => {
+        console.error('Error deleting assignment:', err);
+      });
+
+  } else if (t.classList.contains('edit-btn')) {
+    const id = t.dataset.id;
+    const assignment = assignments.find(a => String(a.id) === String(id));
+
+    form.dataset.editId = id;
+    document.querySelector('#assignment-title').value = assignment.title || '';
+    document.querySelector('#assignment-description').value = assignment.description || '';
+    document.querySelector('#assignment-due-date').value = assignment.due_date || '';
+    document.querySelector('#assignment-files').value = (assignment.files || []).join('\n');
+
+    form.scrollIntoView({ behavior: 'smooth' });
+    if (submitBtn) submitBtn.textContent = 'Update Assignment';
+    if (cancelBtn) cancelBtn.style.display = 'inline-block';
+    if (formTitle) formTitle.textContent = 'Update Assignment';
+  }
 }
+
+/* for filtering */
+function loadFilteredAssignments(){
+  const search = searchInput.value.trim();
+  const sort = filterSelect.value;
+  const order = sortAsc ? "asc" : "desc";
+
+  const url = `${ASSIGNMENT_URL}&search=${encodeURIComponent(search)}&sort=${sort}&order=${order}`;
+
+  fetch(url).then(response=>response.json()).then(result=>{
+     assignments = result.data;
+     renderTable();
+  }).catch(error => console.error("Error fetching filtered assignments:", error));
+}
+
+//Event listeners for search & filter
+searchInput.addEventListener("input", (e)=>{
+  clearTimeout(timer);
+  timer = setTimeout(() => loadFilteredAssignments(), 300);
+});
+filterSelect.addEventListener("change", loadFilteredAssignments);
+orderBtn.addEventListener("click", () => {
+  sortAsc = !sortAsc;
+  orderBtn.textContent = sortAsc ? "Asc" : "Desc";
+  loadFilteredAssignments();
+});
 
 /**
  * TODO: Implement the loadAndInitialize function.
@@ -143,19 +287,45 @@ if(target.classList.contains('delete-btn')){
  * 5. Add the 'click' event listener to `assignmentsTableBody` (calls `handleTableClick`).
  */
 async function loadAndInitialize() {
-try{
- const response = await fetch('/src/assignments/api/assignments.json');
- assignments = await response.json();
- renderTable();
+  if (!form || !table) {
+    console.error('Missing required DOM elements. Make sure #assignment-form and #assignments-tbody exist in the HTML.');
+    return;
+  }
 
- form.addEventListener('submit', handleAddAssignment);
- table.addEventListener('click', handleTableClick);
+  try {
+    const response = await fetch(ASSIGNMENT_URL);
+    if (!response.ok) {
+      const txt = await response.text();
+      throw new Error(`Fetch failed: ${response.status} ${response.statusText}\n${txt}`);
+    }
+    const result = await response.json().catch(err => {
+      // if JSON parse fails, include raw text
+      const e = new Error('Invalid JSON from server');
+      e.serverText = null;
+      throw e;
+    });
 
-}catch(error){
-  console.error('Failed to load assignments', error);
+    if (!result || result.success !== true) {
+      throw new Error(result?.error || 'API returned error');
+    }
+
+    // PHP returns array in result.data
+    assignments = Array.isArray(result.data) ? result.data : [];
+    renderTable();
+
+    // wire events
+    form.addEventListener('submit', handleAddAssignment);
+    table.addEventListener('click', handleTableClick);
+
+    // optional cancel button handler
+    if (cancelBtn) cancelBtn.addEventListener('click', resetEdit);
+
+    console.info('Assignments loaded:', assignments.length);
+  } catch (err) {
+    console.error('Error loading assignments:', err);
+    if (err.serverText) console.error(err.serverText);
+    if (err.serverResponse) console.error(err.serverResponse);
+  }
 }
-}
 
-// --- Initial Page Load ---
-// Call the main async function to start the application.
 loadAndInitialize();

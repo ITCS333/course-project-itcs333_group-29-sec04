@@ -63,12 +63,25 @@
                    <!-- TODO: Add a 'button' to submit the form.
                          - id="add-assignment", type="submit", Text: "Add Assignment" -->
                          <button id="add-assignment" type="submit">Add Assignment</button>
+                         <button id="cancel-edit-button" class="secondary" type="button">Cancel Edit</button>
                 <!-- End of fieldset. -->
                  </fieldset>
             <!-- End of form. -->
              </form>
         <!-- End of form section. -->
           </section>
+
+           <div id="search-filter-group">
+                <!--Search-->
+                <input type="text" id="Search-input" placeholder="Search by title or description ...">
+                <!--Search-->
+                <select name="" id="filter-select">
+                    <option value="title">Sort by title</option>
+                    <option value="due_date">Sort by due date</option>
+                    <option value="created_at">Sort by created At</option>
+                </select>
+                <button id="order-btn" title="order by">Asc</button>
+             </div>
 
         <!-- Section 2: Existing Assignments List -->
         <!-- TODO: Create a 'section' to display the list of current assignments. -->

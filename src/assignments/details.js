@@ -22,6 +22,9 @@
 let currentAssignmentId = null;
 let currentComments = [];
 
+const ASSIGNMENT_URL="./api/index.php?resource=assignments&id=";
+const COMMENTS_URL="./api/index.php?resource=comments";
+
 // --- Element Selections ---
 // TODO: Select all the elements you added IDs for in step 2.
 const title = document.querySelector('#assignment-title');
@@ -60,7 +63,7 @@ return id;
 function renderAssignmentDetails(assignment) {
 
 title.textContent = assignment.title;
-due.textContent = `Due: ${assignment.dueDate}`;
+due.textContent = `Due: ${assignment.due_date}`;
 description.textContent = assignment.description;
 
  AttachedFiles.innerHTML = '';
@@ -87,8 +90,15 @@ function createCommentArticle(comment) {
   p.textContent = comment.text;
   footer.textContent = `Posted by: ${comment.author}`;
 
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = "×";
+  deleteBtn.dataset.id = comment.id;
+  deleteBtn.classList.add("comment-delete-btn");
+  article.classList.add("comment-item");
+  
   article.appendChild(p);
   article.appendChild(footer);
+  article.appendChild(deleteBtn);
 
   return article;
 }
@@ -106,7 +116,7 @@ function renderComments() {
 
  currentComments.forEach(comment => {
    const com = createCommentArticle(comment);
-   commentList.appendChild(com);
+   commentList.append(com);
  });
 }
 
@@ -123,20 +133,50 @@ function renderComments() {
  * 6. Call `renderComments()` to refresh the list.
  * 7. Clear the `newCommentText` textarea.
  */
-function handleAddComment(event) {
+async function handleAddComment(event) {
  event.preventDefault();
 
-const text = commentText.value;
+const text = commentText.value.trim();
 if(!text){return;}
 
 const newComment = {
-  author: 'Student',
-  text: text,
+  id:"",
+  assignment_id:currentAssignmentId,
+  author: 'Student', 
+  text: text
 };
 
-currentComments.push(newComment);
-renderComments();
-commentText.value = '';
+fetch(COMMENTS_URL+"&assignment_id="+currentAssignmentId,{
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newComment)
+    })
+    .then(response=>response.json())
+    .then(result=>{
+      if(result.success){
+        newComment.id=result.data;
+        //moved within fetch.then
+        currentComments.push(newComment);
+        renderComments();
+        commentText.value="";
+      }else{
+        throw new Error("Could not fetch Comment")
+      }
+    }).catch(error=> console.log("Error:",error));
+  }
+
+function handleDeleteComment(event){
+  if(event.target.classList.contains("comment-delete-btn")){
+    const id=event.target.dataset.id;
+    fetch(COMMENTS_URL+"&id="+id,{method:"DELETE"})
+    .then(response=>response.json())
+    .then(result=>{
+      if(result.success){
+        currentComments=currentComments.filter((comment)=> comment.id!=id);
+        renderComments();
+      }else{throw new Error(result.error || "Could not delete comment");}
+    }).catch(error=> console.log("Error: ", error));
+  }
 }
 
 /**
@@ -164,26 +204,23 @@ return;
 }
 
 const [assignmentLi, commentsLi] = await Promise.all([
-  fetch('api/assignments.json'),
-  fetch('api/comments.json')
+fetch(ASSIGNMENT_URL+currentAssignmentId).then(result=> result.json()),
+    fetch(COMMENTS_URL+"&assignment_id="+currentAssignmentId).then(result=>result.json())
 ]);
 
-const assignments = await assignmentLi.json();
-const comments = await commentsLi.json();
+const assign = assignmentLi.data;
 
- const assignment = assignments.find(a => a.id == currentAssignmentId);
+if(!assign){
+  assignmentTitle.textContent = "Assignment Not Found";
+  return;
+}
 
- currentComments = comments[currentAssignmentId] || [];
-
-    if (!assignment) {
-      title.textContent = "Assignment Not Found";
-      return;
-    }
-
-    renderAssignmentDetails(assignment);
+ currentComments = commentsLi.data || [];
+    renderAssignmentDetails(assign);
     renderComments();
     const commentForm = document.getElementById("comment-form");
     commentForm.addEventListener("submit", handleAddComment);
+    commentList.addEventListener("click",handleDeleteComment);
 
 } 
 

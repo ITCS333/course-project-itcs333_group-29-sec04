@@ -18,6 +18,5 @@ class Database{
         }
         return $pdo;
      }
-
 }
 ?>
