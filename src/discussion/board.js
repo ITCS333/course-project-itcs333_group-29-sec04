@@ -1,101 +1,144 @@
-// --- Global Data Store ---
+// --- Global State ---
 let topics = [];
+
+// --- API URL ---
+const API_URL = './api/index.php?resource=topics';
 
 // --- Element Selections ---
 const newTopicForm = document.querySelector('#new-topic-form');
 const topicListContainer = document.querySelector('#topic-list-container');
+const searchInput = document.getElementById("Search-input");
+const filterSelect = document.getElementById("filter-select");
+const orderBtn = document.getElementById("order-btn");
+let sortAsc = true;
+let timer;
 
-// --- Functions ---
+// --- Helper Functions ---
 
+/**
+ * Fetch topics from API with optional search, sorting, and order
+ */
+async function fetchTopics(search = '', sort = 'created_at', order = 'desc') {
+    try {
+        const url = `${API_URL}&search=${encodeURIComponent(search)}&sort=${sort}&order=${order}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch topics');
+        const result = await response.json();
+        topics = result.data || [];
+        renderTopics();
+    } catch (error) {
+        console.error("Error fetching topics:", error);
+        topicListContainer.innerHTML = "<p>Error loading topics.</p>";
+    }
+}
+
+/**
+ * Create single topic article element
+ */
 function createTopicArticle(topic) {
     const article = document.createElement('article');
 
-    // Title with link
+    // Topic title with link
     const h3 = document.createElement('h3');
     const link = document.createElement('a');
-    link.href = topic-detail.html?id=${topic.id}; // Link to Topic Details page
+    link.href = `topic.html?id=${topic.id}`;
     link.textContent = topic.subject;
     h3.appendChild(link);
     article.appendChild(h3);
 
-    // Footer with author and date
+    // Footer info
     const footer = document.createElement('footer');
-    footer.textContent = Posted by: ${topic.author} on ${topic.date};
+    footer.textContent = `Posted by: ${topic.author} on ${topic.created_at}`;
     article.appendChild(footer);
 
-    // Action buttons
+    // Actions (Edit/Delete)
     const actionsDiv = document.createElement('div');
-
-    const editBtn = document.createElement('button');
-    editBtn.textContent = "Edit";
-    editBtn.className = "secondary";
-
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = "Delete";
     deleteBtn.className = "contrast delete-btn";
     deleteBtn.dataset.id = topic.id;
-
-    actionsDiv.appendChild(editBtn);
     actionsDiv.appendChild(deleteBtn);
-    article.appendChild(actionsDiv);
 
+    article.appendChild(actionsDiv);
     return article;
 }
 
+/**
+ * Render all topics in the container
+ */
 function renderTopics() {
     topicListContainer.innerHTML = "";
-    topics.forEach(topic => {
-        const article = createTopicArticle(topic);
-        topicListContainer.appendChild(article);
-    });
+    if (topics.length === 0) {
+        topicListContainer.innerHTML = "<p>No topics found.</p>";
+        return;
+    }
+    topics.forEach(topic => topicListContainer.appendChild(createTopicArticle(topic)));
 }
 
-function handleCreateTopic(event) {
+/**
+ * Handle form submission to create new topic
+ */
+async function handleCreateTopic(event) {
     event.preventDefault();
-
     const subject = document.querySelector('#topic-subject').value.trim();
     const message = document.querySelector('#topic-message').value.trim();
-
     if (!subject || !message) return;
 
-    const newTopic = {
-        id: topic_${Date.now()},
-        subject,
-        message,
-        author: "Student",
-        date: new Date().toISOString().split('T')[0]
-    };
+    const newTopic = { subject, message, author: "Student" };
 
-    topics.push(newTopic);
-    renderTopics();
-    newTopicForm.reset();
-}
-
-function handleTopicListClick(event) {
-    if (event.target.classList.contains('delete-btn')) {
-        const id = event.target.dataset.id;
-        topics = topics.filter(topic => topic.id !== id);
-        renderTopics();
-    }
-}
-
-// --- Initialize Page ---
-async function loadAndInitialize() {
     try {
-        const response = await fetch('topics.json');
-        if (response.ok) {
-            const data = await response.json();
-            topics = data;
-        }
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newTopic)
+        });
+        if (!response.ok) throw new Error('Failed to create topic');
+        fetchTopics();
+        newTopicForm.reset();
     } catch (error) {
-        console.warn("Could not load topics.json, using empty array.");
+        console.error("Error creating topic:", error);
     }
-
-    renderTopics();
-
-    newTopicForm.addEventListener('submit', handleCreateTopic);
-    topicListContainer.addEventListener('click', handleTopicListClick);
 }
 
-// --- Initial Page Load ---
-loadAndInitialize();
+/**
+ * Handle clicks in topic list (delete button)
+ */
+async function handleTopicListClick(event) {
+    if (event.target.classList.contains('delete-btn')) {
+        const topicId = event.target.dataset.id;
+        try {
+            const response = await fetch(`${API_URL}&id=${topicId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Failed to delete topic');
+            fetchTopics();
+        } catch (error) {
+            console.error("Error deleting topic:", error);
+        }
+    }
+}
+
+/**
+ * Load topics based on search/filter/order
+ */
+function loadFilteredTopics() {
+    const search = searchInput.value.trim();
+    let sort = filterSelect.value;
+    const order = sortAsc ? "asc" : "desc";
+    fetchTopics(search, sort, order);
+}
+
+// --- Event Listeners ---
+newTopicForm.addEventListener('submit', handleCreateTopic);
+topicListContainer.addEventListener('click', handleTopicListClick);
+searchInput.addEventListener("input", () => {
+    clearTimeout(timer);
+    timer = setTimeout(loadFilteredTopics, 300);
+});
+filterSelect.addEventListener("change", loadFilteredTopics);
+orderBtn.addEventListener("click", () => {
+    sortAsc = !sortAsc;
+    orderBtn.textContent = sortAsc ? "Asc" : "Desc";
+    loadFilteredTopics();
+});
+
+// --- Initial Load ---
+fetchTopics();
