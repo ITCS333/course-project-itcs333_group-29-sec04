@@ -14,7 +14,7 @@
 let students = [];
 
 const API_URL = "./api/index.php";
-const CURRENT_USER_ID = "admin001";
+const CURRENT_USER_ID = "1";
 // --- Element Selections ---
 // We can safely select elements here because 'defer' guarantees
 // the HTML document is parsed before this script runs.
@@ -124,6 +124,7 @@ async function loadStudents() {
   }
   renderTable(students);
 }
+
 
 /**
  * TODO: Implement the handleChangePassword function.
@@ -401,7 +402,7 @@ function handleSort(event) {
   th.dataset.sortDir = currentDir;
 
   students.sort((a, b) => {
-    let result = 0;
+    let result;
 
     if (key === "id") {
       const aNum = parseFloat(a.id);

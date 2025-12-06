@@ -100,10 +100,10 @@ function getStudents($db) {
     if (!in_array($order, ['asc', 'desc'], true)) {
         $order = 'asc';
     }
-    $sql = "SELECT student_id, name, email, created_at FROM students";
+    $sql = "SELECT id AS student_id, name, email, created_at FROM users";
     $params = [];
     if (!empty($search)) {
-        $sql .= " WHERE name LIKE :search OR student_id LIKE :search OR email LIKE :search";
+        $sql .= " WHERE name LIKE :search OR email LIKE :search";
         $params[':search'] = '%' . $search . '%';
     }
 
@@ -137,7 +137,7 @@ function getStudents($db) {
  */
 function getStudentById($db, $studentId) {
     // TODO: Prepare SQL query to select student by student_id
-    $sql = "SELECT student_id, name, email, created_at FROM students WHERE student_id = :student_id LIMIT 1";
+    $sql = "SELECT id AS student_id, name, email, created_at FROM users WHERE student_id = :student_id LIMIT 1";
     $stmt = $db->prepare($sql);
     // TODO: Bind the student_id parameter
     $stmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
@@ -177,7 +177,6 @@ function createStudent($db, $data) {
     // Check if student_id, name, email, and password are provided
     // If any field is missing, return error response with 400 status
      if (
-        empty($data['student_id']) ||
         empty($data['name']) ||
         empty($data['email']) ||
         empty($data['password'])
@@ -206,9 +205,9 @@ function createStudent($db, $data) {
     // TODO: Check if student_id or email already exists
     // Prepare and execute a SELECT query to check for duplicates
     // If duplicate found, return error response with 409 status (Conflict)
-    $checkSql = "SELECT id FROM students WHERE student_id = :student_id OR email = :email LIMIT 1";
+    $checkSql = "SELECT id FROM users WHERE student_id = :student_id OR email = :email LIMIT 1";
     $checkStmt = $db->prepare($checkSql);
-    $checkStmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
+    $checkStmt->bindValue(':email', $studentId, PDO::PARAM_STR);
     $checkStmt->bindValue(':email', $email, PDO::PARAM_STR);
     $checkStmt->execute();
     $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
@@ -224,8 +223,8 @@ function createStudent($db, $data) {
     // Use password_hash() with PASSWORD_DEFAULT
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     // TODO: Prepare INSERT query
-    $insertSql = "INSERT INTO students (student_id, name, email, password, created_at)
-                  VALUES (:student_id, :name, :email, :password, NOW())";
+    $insertSql = "INSERT INTO users ( name, email, password, created_at)
+                  VALUES (:name, :email, :password, NOW())";
 
     $stmt = $db->prepare($insertSql);
     // TODO: Bind parameters
@@ -277,7 +276,7 @@ function updateStudent($db, $data) {
     // TODO: Check if student exists
     // Prepare and execute a SELECT query to find the student
     // If not found, return error response with 404 status
-    $checkSql = "SELECT id, email FROM students WHERE student_id = :student_id LIMIT 1";
+    $checkSql = "SELECT id, email FROM users WHERE id = :student_id LIMIT 1";
     $checkStmt = $db->prepare($checkSql);
     $checkStmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
     $checkStmt->execute();
@@ -313,7 +312,7 @@ function updateStudent($db, $data) {
             ], 400);
         }
 
-        $emailSql = "SELECT id FROM students WHERE email = :email AND student_id <> :student_id LIMIT 1";
+        $emailSql = "SELECT id FROM users WHERE email = :email AND student_id <> :student_id LIMIT 1";
         $emailStmt = $db->prepare($emailSql);
         $emailStmt->bindValue(':email', $email, PDO::PARAM_STR);
         $emailStmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
@@ -339,7 +338,7 @@ function updateStudent($db, $data) {
     }
     // TODO: Bind parameters dynamically
     // Bind only the parameters that are being updated
-    $updateSql = "UPDATE students SET " . implode(', ', $fields) . " WHERE student_id = :student_id";
+    $updateSql = "UPDATE users SET " . implode(', ', $fields) . " WHERE student_id = :student_id";
     $stmt = $db->prepare($updateSql);
 
     foreach ($params as $key => $value) {
@@ -386,7 +385,7 @@ function deleteStudent($db, $studentId) {
     // TODO: Check if student exists
     // Prepare and execute a SELECT query
     // If not found, return error response with 404 status
-    $checkSql = "SELECT id FROM students WHERE student_id = :student_id LIMIT 1";
+    $checkSql = "SELECT id FROM users WHERE student_id = :student_id LIMIT 1";
     $checkStmt = $db->prepare($checkSql);
     $checkStmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
     $checkStmt->execute();
@@ -399,7 +398,7 @@ function deleteStudent($db, $studentId) {
         ], 404);
     }
     // TODO: Prepare DELETE query
-    $deleteSql = "DELETE FROM students WHERE student_id = :student_id";
+    $deleteSql = "DELETE FROM users WHERE student_id = :student_id";
     $stmt = $db->prepare($deleteSql);
     // TODO: Bind the student_id parameter
     $stmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
@@ -459,7 +458,7 @@ function changePassword($db, $data) {
     }
     // TODO: Retrieve current password hash from database
     // Prepare and execute SELECT query to get password
-    $sql = "SELECT password FROM students WHERE student_id = :student_id LIMIT 1";
+    $sql = "SELECT password FROM users WHERE student_id = :student_id LIMIT 1";
     $stmt = $db->prepare($sql);
     $stmt->bindValue(':student_id', $studentId, PDO::PARAM_STR);
     $stmt->execute();
@@ -486,7 +485,7 @@ function changePassword($db, $data) {
     $hashedNew = password_hash($newPassword, PASSWORD_DEFAULT);
     // TODO: Update password in database
     // Prepare UPDATE query
-    $updateSql = "UPDATE students SET password = :password WHERE student_id = :student_id";
+    $updateSql = "UPDATE students SET password = :password WHERE id = :student_id";
     $updateStmt = $db->prepare($updateSql);
     // TODO: Bind parameters and execute
     $updateStmt->bindValue(':password', $hashedNew, PDO::PARAM_STR);
