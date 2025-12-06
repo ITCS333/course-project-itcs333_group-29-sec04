@@ -29,7 +29,7 @@ let sortAsc = true;
 let timer;
 const submit_btn = document.getElementById("add-resource");
 const cancel_btn = document.getElementById("cancel-edit-button");
-const formTitle = document.getElementById("resource-title");
+const formTitle = document.getElementById("form-title");
 
 // --- Functions ---
 
@@ -200,6 +200,7 @@ function handleTableClick(event) {
     resourceForm.dataset.editId = id;
     resourceForm.querySelector("button[type='submit']").textContent = "Update Resource";
     cancel_btn.style.display = "inline-block";
+    formTitle.textContent = "Update Resource";
     resourceForm.scrollIntoView({ behavior: "smooth" });
   }
 }
