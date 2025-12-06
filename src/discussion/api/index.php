@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // DATABASE CONNECTION
 // ============================================================================
 
-require_once "Database.php";
+require_once "../../config/Database.php";
 $database = new Database();
 $db = $database->getConnection();
 
