@@ -13,6 +13,8 @@
 // This array will be populated with data fetched from 'students.json'.
 let students = [];
 
+const API_URL = "./api/index.php";
+const CURRENT_USER_ID = "admin001";
 // --- Element Selections ---
 // We can safely select elements here because 'defer' guarantees
 // the HTML document is parsed before this script runs.
@@ -101,6 +103,28 @@ function renderTable(studentArray) {
   });
 }
 
+async function loadStudents() {
+  try {
+    const response = await fetch(API_URL);
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !Array.isArray(result.data)) {
+      console.error("Failed to load students from API:", result.message);
+      students = [];
+    } else {
+      students = result.data.map((s) => ({
+        id: s.student_id,
+        name: s.name,
+        email: s.email,
+      }));
+    }
+  } catch (error) {
+    console.error("Error loading students:", error);
+    students = [];
+  }
+  renderTable(students);
+}
+
 /**
  * TODO: Implement the handleChangePassword function.
  * This function will be called when the "Update Password" button is clicked.
@@ -113,7 +137,7 @@ function renderTable(studentArray) {
  * 4. If validation passes, show an alert: "Password updated successfully!"
  * 5. Clear all three password input fields.
  */
-function handleChangePassword(event) {
+async function handleChangePassword(event) {
   // ... your implementation here ...
   event.preventDefault();
 
@@ -134,13 +158,37 @@ function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
+  const payload = {
+    student_id: CURRENT_USER_ID,
+    current_password: currentValue,
+    new_password: newValue,
+  };
 
-  alert("Password updated successfully!");
+  try {
+    const response = await fetch(`${API_URL}?action=change_password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  current.value = "";
-  newPass.value = "";
-  confirm.value = "";
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      alert(result.message || "Failed to update password.");
+      return;
+    }
+
+    alert("Password updated successfully!");
+
+    currentInput.value = "";
+    newInput.value = "";
+    confirmInput.value = "";
+  } catch (error) {
+    console.error("Error changing password:", error);
+    alert("Server error while updating password.");
+  }
 }
+
 
 /**
  * TODO: Implement the handleAddStudent function.
@@ -157,7 +205,7 @@ function handleChangePassword(event) {
  * - Call `renderTable(students)` to update the view.
  * 5. Clear the "student-name", "student-id", "student-email", and "default-password" input fields.
  */
-function handleAddStudent(event) {
+async function handleAddStudent(event) {
   // ... your implementation here ...
   event.preventDefault();
 
@@ -169,26 +217,46 @@ function handleAddStudent(event) {
   const name = nameInput.value.trim();
   const id = idInput.value.trim();
   const email = emailInput.value.trim();
+  const defaultPassword = defaultPasswordInput
+    ? defaultPasswordInput.value.trim()
+    : "password123";
 
   if (!name || !id || !email) {
     alert("Please fill out all required fields.");
     return;
   }
-  const exists = students.some((student) => student.id === id);
-  if (exists) {
-    alert("A student with this ID already exists.");
-    return;
+  const payload = {
+    student_id: id,
+    name,
+    email,
+    password: defaultPassword,
+  };
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      alert(result.message || "Failed to add student.");
+      return;
+    }
+
+    alert("Student added successfully!");
+    await loadStudents();
+
+    nameInput.value = "";
+    idInput.value = "";
+    emailInput.value = "";
+    if (defaultPasswordInput) defaultPasswordInput.value = "";
+  } catch (error) {
+    console.error("Error adding student:", error);
+    alert("Server error while adding student.");
   }
-
-  const newStudent = { name, id, email };
-  students.push(newStudent);
-
-  renderTable(students);
-
-  nameInput.value = "";
-  idInput.value = "";
-  emailInput.value = "";
-  if (defaultPasswordInput) defaultPasswordInput.value = "";
 }
 
 /**
@@ -202,28 +270,77 @@ function handleAddStudent(event) {
  * - Call `renderTable(students)` to update the view.
  * 3. (Optional) Check for "edit-btn" and implement edit logic.
  */
-function handleTableClick(event) {
+async function handleTableClick(event) {
   // ... your implementation here ...
   const target = event.target;
+  if (!target.closest("button")) return;
 
   if (target.classList.contains("delete-btn")) {
     const id = target.dataset.id;
-    students = students.filter((student) => student.id !== id);
-    renderTable(students);
+    if (!id) return;
+
+    if (!confirm("Are you sure you want to delete this student?")) return;
+
+    try {
+      const response = await fetch(
+        `${API_URL}?student_id=${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        alert(result.message || "Failed to delete student.");
+        return;
+      }
+
+      alert("Student deleted successfully.");
+      await loadStudents();
+    } catch (error) {
+      console.error("Error deleting student:", error);
+      alert("Server error while deleting student.");
+    }
   }
 
   if (target.classList.contains("edit-btn")) {
     const id = target.dataset.id;
+    if (!id) return;
+
     const student = students.find((s) => s.id === id);
     if (!student) return;
 
     const newName = prompt("Enter new name:", student.name);
     const newEmail = prompt("Enter new email:", student.email);
 
-    if (newName && newEmail) {
-      student.name = newName;
-      student.email = newEmail;
-      renderTable(students);
+    if (!newName || !newEmail) return;
+
+    const payload = {
+      student_id: id,
+      name: newName.trim(),
+      email: newEmail.trim(),
+    };
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        alert(result.message || "Failed to update student.");
+        return;
+      }
+
+      alert("Student updated successfully.");
+      await loadStudents();
+    } catch (error) {
+      console.error("Error updating student:", error);
+      alert("Server error while updating student.");
     }
   }
 }
@@ -318,16 +435,8 @@ function handleSort(event) {
  */
 async function loadStudentsAndInitialize() {
   // ... your implementation here ...
-    try {
-    const response = await fetch("api/students.json");
-    if (!response.ok) {
-      console.error("Failed to load students.json");
-      return;
-    }
-    const data = await response.json();
-    students = Array.isArray(data) ? data : [];
-    renderTable(students);
-    
+  
+
     if (changePasswordForm) {
       changePasswordForm.addEventListener("submit", handleChangePassword);
     }
@@ -348,11 +457,8 @@ async function loadStudentsAndInitialize() {
       th.dataset.sortDir = "asc";
       th.addEventListener("click", handleSort);
     });
-  } catch (error) {
-    console.error("Error loading students:", error);
+    await loadStudents();
   }
-
-}
 
 // --- Initial Page Load ---
 // Call the main async function to start the application.
