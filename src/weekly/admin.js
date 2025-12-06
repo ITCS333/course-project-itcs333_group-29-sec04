@@ -215,6 +215,7 @@ function handleTableClick(event) {
   // ... your implementation here ...
   if(event.target.classList.contains("delete-btn")){
     //Delete week
+    if (!confirm('Delete this Week?')) return;
     const id=event.target.dataset.id;
     //Fetch part
     fetch(`${WEEKS_URL}&id=${id}`, {method:"DELETE"})
