@@ -27,6 +27,9 @@ const filterSelect = document.getElementById("filter-select");
 const orderBtn = document.getElementById("order-btn");
 let sortAsc = true;
 let timer;
+const submit_btn = document.getElementById("add-resource");
+const cancel_btn = document.getElementById("cancel-edit-button");
+const formTitle = document.getElementById("resource-title");
 
 // --- Functions ---
 
@@ -145,6 +148,7 @@ function handleAddResource(event) {
         if (!data.success) console.error("Update failed:", data.message);
         else {
           renderTable();
+          restEdit();
           resourceForm.reset();
         }
       });
@@ -195,6 +199,7 @@ function handleTableClick(event) {
 
     resourceForm.dataset.editId = id;
     resourceForm.querySelector("button[type='submit']").textContent = "Update Resource";
+    cancel_btn.style.display = "inline-block";
     resourceForm.scrollIntoView({ behavior: "smooth" });
   }
 }
@@ -223,6 +228,15 @@ orderBtn.addEventListener("click", () => {
   loadFilteredResources();
 });
 
+
+cancel_btn.addEventListener("click", restEdit);
+function restEdit() {
+  resourceForm.reset();
+  delete resourceForm.dataset.editId;
+  submit_btn.textContent = "Add Resource";
+  cancel_btn.style.display = "none";
+  formTitle.textContent = "Add a New Resource";
+}
 /**
  * TODO: Implement the loadAndInitialize function.
  * This function needs to be 'async'.
