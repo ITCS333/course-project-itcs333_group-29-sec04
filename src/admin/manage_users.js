@@ -96,35 +96,13 @@ function createStudentRow(student) {
  */
 function renderTable(studentArray) {
   // ... your implementation here ...
+  if (!studentTableBody) return;
   studentTableBody.innerHTML = "";
   studentArray.forEach((student) => {
     const row = createStudentRow(student);
     studentTableBody.appendChild(row);
   });
 }
-
-async function loadStudents() {
-  try {
-    const response = await fetch(API_URL);
-    const result = await response.json();
-
-    if (!response.ok || !result.success || !Array.isArray(result.data)) {
-      console.error("Failed to load students from API:", result.message);
-      students = [];
-    } else {
-      students = result.data.map((s) => ({
-        id: s.student_id,
-        name: s.name,
-        email: s.email,
-      }));
-    }
-  } catch (error) {
-    console.error("Error loading students:", error);
-    students = [];
-  }
-  renderTable(students);
-}
-
 
 /**
  * TODO: Implement the handleChangePassword function.
@@ -142,13 +120,18 @@ async function handleChangePassword(event) {
   // ... your implementation here ...
   event.preventDefault();
 
-  const current = document.getElementById("current-password");
-  const newPass = document.getElementById("new-password");
-  const confirm = document.getElementById("confirm-password");
+  const currentInput = document.getElementById("current-password");
+  const newInput = document.getElementById("new-password");
+  const confirmInput = document.getElementById("confirm-password");
 
-  const currentValue = current.value.trim();
-  const newValue = newPass.value.trim();
-  const confirmValue = confirm.value.trim();
+  const currentValue = currentInput ? currentInput.value.trim() : "";
+  const newValue = newInput ? newInput.value.trim() : "";
+  const confirmValue = confirmInput ? confirmInput.value.trim() : "";
+
+  if (!currentValue || !newValue || !confirmValue) {
+    alert("Please fill out all password fields.");
+    return;
+  }
 
   if (newValue !== confirmValue) {
     alert("Passwords do not match.");
@@ -159,6 +142,7 @@ async function handleChangePassword(event) {
     alert("Password must be at least 8 characters.");
     return;
   }
+
   const payload = {
     student_id: CURRENT_USER_ID,
     current_password: currentValue,
@@ -215,24 +199,23 @@ async function handleAddStudent(event) {
   const emailInput = document.getElementById("student-email");
   const defaultPasswordInput = document.getElementById("default-password");
 
-  const name = nameInput.value.trim();
-  const id = idInput.value.trim();
-  const email = emailInput.value.trim();
+  const name = nameInput ? nameInput.value.trim() : "";
+  const studentIdFromForm = idInput ? idInput.value.trim() : "";
+  const email = emailInput ? emailInput.value.trim() : "";
   const defaultPassword = defaultPasswordInput
     ? defaultPasswordInput.value.trim()
     : "password123";
 
-  if (!name || !id || !email) {
+  if (!name || !studentIdFromForm || !email) {
     alert("Please fill out all required fields.");
     return;
   }
   const payload = {
-    student_id: id,
+    student_id: studentIdFromForm,
     name,
     email,
     password: defaultPassword,
   };
-
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -248,8 +231,11 @@ async function handleAddStudent(event) {
     }
 
     alert("Student added successfully!");
+
+  
     await loadStudents();
 
+    
     nameInput.value = "";
     idInput.value = "";
     emailInput.value = "";
@@ -285,9 +271,7 @@ async function handleTableClick(event) {
     try {
       const response = await fetch(
         `${API_URL}?student_id=${encodeURIComponent(id)}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
 
       const result = await response.json();
@@ -302,7 +286,7 @@ async function handleTableClick(event) {
     } catch (error) {
       console.error("Error deleting student:", error);
       alert("Server error while deleting student.");
-    }
+  }
   }
 
   if (target.classList.contains("edit-btn")) {
@@ -434,9 +418,31 @@ function handleSort(event) {
  * - "input" on `searchInput` -> `handleSearch`
  * - "click" on each header in `tableHeaders` -> `handleSort`
  */
+async function loadStudents() {
+  try {
+    const response = await fetch(API_URL);
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !Array.isArray(result.data)) {
+      console.error("Failed to load students from API:", result.message);
+      students = [];
+    } else {
+      students = result.data.map((s) => ({
+        id: String(s.student_id),
+        name: s.name,
+        email: s.email,
+      }));
+    }
+  } catch (error) {
+    console.error("Error loading students:", error);
+    students = [];
+  }
+
+  renderTable(students);
+}
+
 async function loadStudentsAndInitialize() {
   // ... your implementation here ...
-  
 
     if (changePasswordForm) {
       changePasswordForm.addEventListener("submit", handleChangePassword);
