@@ -126,6 +126,11 @@ function loadFilteredTopics() {
     fetchTopics(search, sort, order);
 }
 
+// --- Initialize App ---
+async function loadAndInitialize() {
+    // Load topics first
+    await fetchTopics();}
+
 // --- Event Listeners ---
 if (newTopicForm) newTopicForm.addEventListener('submit', handleCreateTopic);
 if (topicListContainer) topicListContainer.addEventListener('click', handleTopicListClick);
@@ -145,4 +150,4 @@ if (orderBtn) {
 }
 
 // --- Initial Load ---
-fetchTopics();
+loadAndInitialize();
