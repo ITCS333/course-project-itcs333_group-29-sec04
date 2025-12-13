@@ -7,7 +7,7 @@ const API_URL = './api/index.php?resource=topics';
 // --- Element Selections ---
 const newTopicForm = document.querySelector('#new-topic-form');
 const topicListContainer = document.querySelector('#topic-list-container');
-const searchInput = document.getElementById("Search-input");
+const searchInput = document.getElementById("search-input");
 const filterSelect = document.getElementById("filter-select");
 const orderBtn = document.getElementById("order-btn");
 let sortAsc = true;
