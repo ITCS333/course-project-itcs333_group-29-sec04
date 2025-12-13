@@ -127,18 +127,22 @@ function loadFilteredTopics() {
 }
 
 // --- Event Listeners ---
-newTopicForm.addEventListener('submit', handleCreateTopic);
-topicListContainer.addEventListener('click', handleTopicListClick);
-searchInput.addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = setTimeout(loadFilteredTopics, 300);
-});
-filterSelect.addEventListener("change", loadFilteredTopics);
-orderBtn.addEventListener("click", () => {
-    sortAsc = !sortAsc;
-    orderBtn.textContent = sortAsc ? "Asc" : "Desc";
-    loadFilteredTopics();
-});
+if (newTopicForm) newTopicForm.addEventListener('submit', handleCreateTopic);
+if (topicListContainer) topicListContainer.addEventListener('click', handleTopicListClick);
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(loadFilteredTopics, 300);
+    });
+}
+if (filterSelect) filterSelect.addEventListener("change", loadFilteredTopics);
+if (orderBtn) {
+    orderBtn.addEventListener("click", () => {
+        sortAsc = !sortAsc;
+        orderBtn.textContent = sortAsc ? "Asc" : "Desc";
+        loadFilteredTopics();
+    });
+}
 
 // --- Initial Load ---
 fetchTopics();
