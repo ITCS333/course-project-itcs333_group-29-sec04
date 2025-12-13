@@ -49,7 +49,7 @@
 // ============================================================================
 // HEADERS AND INITIALIZATION
 // ============================================================================
-
+session_start();
 // TODO: Set headers for JSON response and CORS
 // Set Content-Type to application/json
 // Allow cross-origin requests (CORS) if needed
@@ -561,7 +561,7 @@ try {
         
     } elseif ($method === 'POST') {
         // TODO: Check the action parameter to determine which function to call
-        
+        requireLogin();
         // If action is 'comment', create a new comment
         // TODO: Check if action === 'comment'
         // Call createComment()
@@ -574,11 +574,12 @@ try {
     } elseif ($method === 'PUT') {
         // TODO: Update a resource
         // Call updateResource()
+        requireLogin();
         updateResource($db,$data);
 
     } elseif ($method === 'DELETE') {
         // TODO: Check the action parameter to determine which function to call
-        
+        requireLogin();
         // If action is 'delete_comment', delete a comment
         // TODO: Check if action === 'delete_comment'
         // Get comment_id from query parameters or request body
@@ -691,6 +692,15 @@ function validateRequiredFields($data, $requiredFields) {
     // TODO: Return result array
     // ['valid' => (count($missing) === 0), 'missing' => $missing]
     return ['valid' => (count($missing) === 0), 'missing' => $missing];
+}
+
+function requireLogin() {
+    if (!isset($_SESSION['user_id'])) {
+        sendResponse([
+            "success" => false,
+            "message" => "Unauthorized"
+        ], 401);
+    }
 }
 
 ?>
