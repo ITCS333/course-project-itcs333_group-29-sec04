@@ -39,6 +39,8 @@
 // HEADERS AND CORS CONFIGURATION
 // ============================================================================
 
+//start session
+session_start();
 // TODO: Set Content-Type header to application/json
 header('Content-Type: application/json');
 // TODO: Set CORS headers to allow cross-origin requests
@@ -224,6 +226,7 @@ if(isset($data["files"]) && is_array($data["files"])){
     // TODO: Check if insert was successful
     // TODO: If insert failed, return 500 error
 if($result){    
+        $_SESSION['last_assignment_id'] = $db->lastInsertId();
         return sendResponse(["success" => true, "data" => $db->lastInsertId()],201);
     }else{
         return sendError("Failed to create assignment",500);
