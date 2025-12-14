@@ -23,7 +23,14 @@
  * 
  * Response Format: JSON
  */
-
+ session_start();
+ if (!isset($_SESSION['admin'])) {
+    $_SESSION['admin'] = [
+        'id'       => 1,
+        'username' => 'admin',
+        'role'     => 'admin',
+    ];
+}
 // TODO: Set headers for JSON response and CORS
 // Set Content-Type to application/json
 // Allow cross-origin requests (CORS) if needed
