@@ -40,7 +40,9 @@
 // ============================================================================
 
 //start session
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 // TODO: Set Content-Type header to application/json
 header('Content-Type: application/json');
 // TODO: Set CORS headers to allow cross-origin requests
@@ -52,7 +54,9 @@ if($_SERVER['REQUEST_METHOD']=="OPTIONS"){
     http_response_code(200);
     exit();
 }
-
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    sendResponse(["success" => false,"message" => "Unauthorized"],401);
+}
 
 // ============================================================================
 // DATABASE CONNECTION
@@ -225,8 +229,7 @@ if(isset($data["files"]) && is_array($data["files"])){
     $result=$statement->execute();
     // TODO: Check if insert was successful
     // TODO: If insert failed, return 500 error
-if($result){    
-        $_SESSION['last_assignment_id'] = $db->lastInsertId();
+    if($result){    
         return sendResponse(["success" => true, "data" => $db->lastInsertId()],201);
     }else{
         return sendError("Failed to create assignment",500);
