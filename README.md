@@ -19,4 +19,8 @@
 | 4 | RAWAN ALI ABDULREDHA FARDAN |
 | 5 | MAHA AHMED ZAIN SALEH |
 ## A link to your live, hosted application on Replit.
-https://replit.com/@zozoajalil/ITCS333-Course-Project?v=1
+**The link to remix:**
+https://replit.com/@rawanalifardan/ITCS333-Course-Project-2?v=1
+**The live link ( it sleeps sometimes as it's not the paid version ):**
+-The logout was added to make the application testing smoother
+https://4ea0dc30-815b-4b88-bdc4-c357e4e08a5c-00-22fr8pj300x1l.sisko.replit.dev/
